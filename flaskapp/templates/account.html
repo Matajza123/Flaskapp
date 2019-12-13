@@ -1,0 +1,15 @@
+﻿{% extends "layout.html" %}
+{% block content %}
+<h1 class="major"><center>Konto</center></h1>
+<section id="main" class="wrapper">
+    <div style="text-align: center">
+        <h3>Imię i Nazwisko: {{name}}</h3>
+        <h3>Adres Email: {{email}}</h3>
+        <h3>Numer telefonu: {{tel}}</h3>
+        <h3>Wiek : {{age}}</h3>
+        <br />
+        <a href="del" class="button">Usuń konto</a>
+    </div>
+</section>
+
+{% endblock content %}

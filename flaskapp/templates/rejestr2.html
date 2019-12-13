@@ -1,0 +1,49 @@
+﻿{% extends "layout.html" %}
+{% block content %}
+<center><h1 class="major">Zarządanie pacjętem</h1></center>
+
+<section id="main" class="wrapper">
+    <center><h2>{{user1}}, Numer Wizyty: {{visit_nr}}</h2></center>
+    <hr />
+    <div style="text-align: left; padding-left: 200px">
+
+        <h2>Choroby :  {{choroba}}</h2>
+        <h2>Objawy  :  {{objawy}}</h2>
+        <h2>Notatki :  {{notes}}</h2>
+        <a href="{{ url_for('photos')}}">Zdjęcia :</a><br />
+        <a href="{{ url_for('rejestr2_more')}}">Pokaż więcej:</a>
+        <hr />
+        <form method="POST" action="http://localhost:5000/rejestr3" enctype="multipart/form-data">
+            <fieldset class="form-group">
+                <h3>Zaaktualizuj dane :</h3>
+                <div class="form-group">
+                    {{ form.choroba.label(class="form-control-label") }}
+                    {{ form.choroba(class="form-control form-control-lg") }}
+                </div>
+                <div class="form-group">
+                    {{ form.objawa.label(class="form-control-label") }}
+                    {{ form.objawa(class="form-control form-control-lg") }}
+                </div>
+                <div class="form-group">
+                    {{ form.notes.label(class="form-control-label") }}
+                    {{ form.notes(class="form-control form-control-lg") }}
+                </div>
+                <div class="form-group" style="height: 100px; width: 400px">
+                    {{ form.picture.label(class="form-control-label") }}
+                    {{ form.picture(class="form-control-file") }}
+                </div>
+                <hr />
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-outline-info") }}
+                </div>
+
+            </fieldset>
+        </form>
+        <br /><hr />
+        <div>
+            <legend><a href="{{ url_for('admin') }}">Powrót</a></legend>
+        </div>
+    </div>
+</section>
+
+        {% endblock content %}

@@ -1,0 +1,21 @@
+﻿{% extends "layout.html" %}
+{% block content %}
+<h1 class="major"><center>Statystyki</center></h1>
+<div class="inner" style="text-align: left; padding-left: 200px">
+    <h2>Ilość wydarzeń</h2>
+    <h3>Ostatnie 7 dni: {{last_7}}</h3>
+    <h3>Ostatnie 30 dni: {{last_30}}</h3>
+    <h3>Ostatnie 90 dni: {{last_90}}</h3>
+    <hr />
+
+    <h3>Zarejestrowani użytkownicy: {{user_count}}</h3>
+    <hr />
+
+    <h3>Liczba zarejestrowanych użytkowników w poszczególnych dniach:</h3>
+    {% for x in range(stats_len) %}
+    <h3>{{dates.pop(0)}}: {{user_nr.pop(0)}}</h3>
+    {% endfor%}
+</div>
+
+
+{% endblock content %}

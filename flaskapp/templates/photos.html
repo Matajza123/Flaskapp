@@ -1,0 +1,15 @@
+﻿{% extends "layout.html" %}
+{% block content %}
+<center><h1 class="major">Zdjęcia</h1></center>
+<section id="main" class="wrapper">
+    <div style="text-align: left; padding-left: 200px">
+        {% if photo_len == 0 %}
+            <h2>Brak zdjęć</h2>
+        {% else %}
+            {% for x in range(photo_len-1) %}
+                <ul><img src="{{photo.pop(0)}}" style="width:1920px;height:1080px;"></ul>
+            {% endfor%}
+        {% endif%}
+    </div>
+</section>
+        {% endblock content %}

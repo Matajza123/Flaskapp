@@ -1,0 +1,4 @@
+[TypeError("unsupported operand type(s) for +: 'datetime.datetime' and 'str'",), '/rezerwacja', '13-12-2019', '21:58:59']
+[TemplateNotFound(), '/lokalizacja', '13-12-2019', '22:01:13']
+[TemplateNotFound(), '/lokalizacja', '13-12-2019', '22:02:18', User('Imiê: Admin Admin', 'Wiek: 21', 'Tel: 666276412', 'ID: 1')]
+[TemplateNotFound(), '/lokalizacja', '13-12-2019', '22:03:03', 1]

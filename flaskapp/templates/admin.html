@@ -1,0 +1,59 @@
+﻿{% extends "layout.html" %}
+{% block content %}
+<h1 class="major"><center>Admin Console  -  {{now1}}</center></h1>
+<section id="main" class="wrapper">
+    <div style="text-align: center;">
+            <h2 class="major">Admin bar</h2>
+            <h4><a href="{{ url_for('add') }}">Seryjne dodawanie terminów</a><br /></h4>
+            <h4><a href="{{ url_for('confirm_admin') }}">Zatwierdzanie terminów</a><br /></h4>
+            <h4><a href="{{ url_for('rejestr') }}">Rejestr Pacjentów</a><br /></h4>
+            <h4><a href="{{ url_for('stats') }}">Statystyki</a><br /></h4>
+
+    </div>
+    <hr />
+</section>
+
+    <div class="inner" style="text-align: left; padding-left: 200px">
+        <h4>Zatwierdzone Terminy: {{list_len_admin}}</h4>
+        {% if list_len_admin == False %}
+        <h2>Brak terminów</h2>
+        <br />
+        {% else %}
+        {% for x in range(list_len_admin) %}
+        <ul>
+            <li>{{summary_admin.pop(0)}},  {{start_admin.pop(0)}}, {{desc_admin.pop(0)}}</li>
+        </ul>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <hr />
+
+    <div class="inner" style="text-align: left; padding-left: 200px">
+        <h4>Oczekujące Potwierdzenia: {{list_len_awaiting}}</h4>
+        {% if list_len_awaiting == False %}
+        <h2>Brak terminów</h2>
+        <br />
+        {% else %}
+        {% for x in range(list_len_awaiting) %}
+        <ul>
+            <li>{{summary_awaiting.pop(0)}},  {{start_awaiting.pop(0)}},  {{desc_awaiting.pop(0)}}</li>
+        </ul>
+
+        {% endfor %}
+        {% endif %}
+    </div>
+    <hr />
+
+    <div class="inner" style="text-align: left; padding-left: 200px">
+        <h4>Wolne Terminy: {{list_len_user}}</h4>
+        {% if list_len_user == False %}
+        <h2>Brak terminów</h2><br />
+        {% else %}
+        {% for x in range(list_len_user) %}
+        <ul>
+            <li>{{summary_user.pop(0)}},  {{start_user.pop(0)}}</li>
+        </ul>
+        {% endfor %}
+        {% endif %}
+    </div>
+    {% endblock content %}

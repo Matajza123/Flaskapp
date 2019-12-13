@@ -1,0 +1,35 @@
+﻿{% extends "layout.html" %}
+{% block content %}
+<datalist id="termin_0">
+    {% for x in range(list_len_confirm_admin) %}
+    <option name="time{{x}}" value="{{start1.pop(0)}}">
+        {% endfor %}
+</datalist>
+<center><h1 class="major">Zatwierdzanie terminów</h1></center>
+<section id="main" class="wrapper">
+    <div style="text-align: center;">
+        {% if list_len_confirm_admin == False %}
+        <div>
+            <h2>Brak terminów</h2>
+            <a href="{{ url_for('admin') }}" class="button">Powrtót</a>
+            <br />
+        </div>
+        {% else %}
+        <div>
+            <form action="http://localhost:5000/confirm_admin2" method="POST">
+                <h3>Wybierz termin: </h3>
+                <fieldset class="form-group">
+                    <input list="termin_0" name="test1" style="background-color:#312450; color:aliceblue;" />
+                </fieldset>
+                <input type="submit" value="Zatwierdz"  class="button"/>
+            </form>
+        </div>
+        {% endif %}
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+    </div>
+</section>
+    {% endblock content %}

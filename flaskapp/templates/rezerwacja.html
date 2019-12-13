@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block content %}
+<datalist id="termin_0">
+    {% for x in range(list_len) %}
+    <option name="time{{x}}" value="{{start.pop(0)}}">
+        {% endfor %}
+</datalist>
+
+<h1 class="major"><center>Terminaz - {{now1}} </center></h1>
+
+<section id="main" class="wrapper">
+    <div style="text-align: center;">
+        {% if previous1 == True %}
+        <h3><a class="button" href="{{previous}}">Poprzedni dzien</a> 
+            {% if next == False %}
+                 </h3>
+            {% else %}
+                 Lub <a class="button" href="{{next}}">Nastepny dzien</a></h3>
+            {% endif %}
+        {% else %}
+            <h3><a class="button" href="{{next}}">Nastepny dzien</a></h3>
+        {% endif%}
+
+        {% if list_len == False %}
+        <br />
+        <hr />
+        <h2>Brak terminow</h2>
+        {% else %}
+
+        <form action="http://localhost:5000/confirm1" method="POST">
+            <br />
+            <hr />
+            <h2>Wybierz termin</h2>
+            <fieldset class="form-group">
+                <input list="termin_0" name="test1" style="background-color:#312450; color:aliceblue;" />
+            </fieldset>
+            <input type="submit" value="Zatwierdz" />
+        </form>
+
+        {% endif %}
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+    </div>
+</section>
+{% endblock content %}
