@@ -778,7 +778,13 @@ def user_count():
         return render_template('error_page.html', error = type(e))
 
 
-@app.route("/stats", methods=['GET', 'POST'])
+@app.route("/bug", methods=['GET', 'POST'])
 @login_required
 def bug():
-    pass
+    return render_template('bug.html')
+
+@app.route("/bug_confirm", methods=['GET', 'POST'])
+@login_required
+def bug_confirm():
+    id1 = request.form['bug1']
+    bugs(current_user.username, id1)

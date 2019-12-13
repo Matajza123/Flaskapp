@@ -1,0 +1,23 @@
+﻿{% extends "layout.html" %}
+{% block content %}
+
+<center><h1 class="major">Zgłoś błąd</h1></center>
+
+<section id="main" class="wrapper">
+    <div style="text-align: left; padding-left: 200px">
+        <br />
+        <form action="http://localhost:5000/bug_confirm" method="POST">
+            <fieldset class="form-group">
+                <h3>Znalazłeś błąd zgłoś to: </h3>
+                <input type="textarea" style="background-color:#312450; color:aliceblue;" name="bug1" required/>
+                <br />
+            </fieldset>
+            <input type="checkbox" id="demo-human" name="demo-human" required>
+			<label for="demo-human">Nie jestem robotem</label>
+            <br/>
+            <input type="submit" value="Zatwierdz" />
+        </form>
+    </div>
+</section>
+
+        {% endblock content %}
