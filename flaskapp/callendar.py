@@ -22,6 +22,8 @@ now_time = now.strftime("%H:%M:%S")
 now_hour = now.strftime("%H")
 now_day = now.strftime("%d")
 
+time = True
+
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 creds = None
 
@@ -53,36 +55,31 @@ def events(day12):
         now = datetime.datetime.now()
 
         format = "%d-%m-%Y"
-        #start_date = now.strptime(now_date, format)
-        #end_date = start_date + datetime.timedelta(hours=24)
-
         start_date = now.strptime(now_date, format)
-        time_to = start_date + now.strftime("%H")
-        end_date = start_date + datetime.timedelta(hours=24)
+        start_date = start_date + datetime.timedelta(hours=int(now.strftime("%H")))
+        start_date = start_date + datetime.timedelta(minutes=int(now.strftime("%M")))
 
-
-
+        start_date0 = now.strptime(now_date, format)
+        end_date = start_date0 + datetime.timedelta(hours=24)
         start_date = start_date.isoformat() + "Z"
         end_date = end_date.isoformat() + "Z"
-
-        print("start", start_date)
-        print("time to ", time_to)
-        print("end", end_date)
 
         events_result = service.events().list(calendarId='primary', timeMin=start_date, timeMax=end_date, singleEvents=True, orderBy='startTime').execute()
         events = events_result.get('items', [])
 
     else: # wczytuje wydarzenia o odpowiedznie dacie podanej w day12
         now = datetime.datetime.now()
-        day1 = datetime.datetime.utcnow() + datetime.timedelta(days=int(day12))
-        day1 = day1 - datetime.timedelta(hours=int(now.strftime("%H")))
-        day1 = day1.isoformat() + 'Z'
 
-        now_24 = datetime.datetime.utcnow() + datetime.timedelta(hours=12)
-        now_24 = now_24 + datetime.timedelta(days=day12)
-        now_24 = now_24.isoformat() + 'Z'
-        
-        events_result = service.events().list(calendarId='primary', timeMin=day1,timeMax=now_24, singleEvents=True, orderBy='startTime').execute()
+        format = "%d-%m-%Y"
+        start_date = now.strptime(now_date, format)
+        start_date = start_date + datetime.timedelta(days=int(day12))
+        end_date = start_date + datetime.timedelta(hours=24)
+
+        start_date = start_date.isoformat() + "Z"
+        end_date = end_date.isoformat() + "Z"
+
+
+        events_result = service.events().list(calendarId='primary', timeMin=start_date, timeMax=end_date, singleEvents=True, orderBy='startTime').execute()
         events = events_result.get('items', [])
     
     if not events:
@@ -370,6 +367,8 @@ def multi_add_events(start_date, start_time1, end_time1, len1):
 
     format = "%Y-%m-%d"
     start_date = now.strptime(start_date, format)
+    if time == True:
+        start_date = start_date + datetime.timedelta(hours=1)
     start_date = start_date + datetime.timedelta(hours=int(start_time1))
     start_date = start_date - datetime.timedelta(hours=2)
 

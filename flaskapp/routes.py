@@ -44,6 +44,17 @@ def log(e, loc):
         output.writelines(str(log_text))
         output.writelines("\n")
 
+def bugs(name, text):
+    bug_text = []
+    bug_text.append(name)
+    bug_text.append(text)
+    bug_text.append(now_date)
+    bug_text.append(now_time)
+
+    with open("flaskapp/logs/bugs.txt", "a+") as output:
+        output.writelines(str(log_text))
+        output.writelines("\n")
+
 @app.route("/home")
 def home():
     return redirect(url_for('rezerwacja'))
@@ -314,9 +325,9 @@ def logout():
 @app.route("/admin", methods=['GET', 'POST'])
 @login_required
 def admin():
-    try:
-        admin = User.query.filter_by(role='1').first()
-        if admin == current_user:
+    admin = User.query.filter_by(role='1').first()
+    if admin == current_user:
+        try:
             summary_admin, start_admin, list_admin, desc_admin = admin_events() # zatwierdzone 
             list_len_admin = list_admin
 
@@ -329,21 +340,20 @@ def admin():
             return render_template('admin.html', title='admin', start_admin=start_admin, summary_admin=summary_admin, list_len_admin=list_len_admin, desc_admin=desc_admin, 
                                 start_user=start_user, summary_user=summary_user, list_len_user=list_len_user,
                                 start_awaiting=start_awaiting, summary_awaiting=summary_awaiting, list_len_awaiting=list_len_awaiting,desc_awaiting=desc_awaiting, now1=now_date)
-        else:
-            flash('Nie masz uprawnien', 'danger')
-            return redirect(url_for('home'))
-    except Exception as e:
-        print("Error at ", e)
-        log(e, request.path)
-        return render_template('error_page.html', error = type(e))
-
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path)
+            return render_template('error_page.html', error = type(e))
+    else:
+        flash('Nie masz uprawnien', 'danger')
+        return redirect(url_for('home'))
 
 @app.route("/add", methods=['GET', 'POST'])
 @login_required
 def add():
-    try:
-        admin = User.query.filter_by(role='1').first()
-        if admin == current_user:
+    admin = User.query.filter_by(role='1').first()
+    if admin == current_user:
+        try:
             len12 = int(24) - int(now_hour)
             now_date1 = []
             for x in range(7): 
@@ -351,20 +361,20 @@ def add():
                 now_date1.append(target)
 
             return render_template('add.html', title='add', list1=admin_events(), now1=now, now_date1=now_date1)
-        else:
-            flash('Nie masz uprawnien', 'danger')
-            return redirect(url_for('home'))
-    except Exception as e:
-        print("Error at ", e)
-        log(e, request.path)
-        return render_template('error_page.html', error = type(e))
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path)
+            return render_template('error_page.html', error = type(e))
+    else:
+        flash('Nie masz uprawnien', 'danger')
+        return redirect(url_for('home'))
 
 @app.route("/add2", methods=['GET', 'POST'])
 @login_required
 def add2():#TODO fix gdy bezpośrednio przechodzisz to add2 błąd
-    try:
-        admin = User.query.filter_by(role='1').first()
-        if admin == current_user:
+    admin = User.query.filter_by(role='1').first()
+    if admin == current_user:
+        try:
             result = request.form
             start_date = request.form['start_date'] 
             start_time1 = request.form['start_time'] 
@@ -388,60 +398,58 @@ def add2():#TODO fix gdy bezpośrednio przechodzisz to add2 błąd
             multi_add_events(start_date, start_time1, end_time1, len1)
             flash('Poprawnie dodano wydarzenia', 'info')
             return redirect(url_for('admin'))
-        else:
-            flash('Nie masz uprawnien', 'danger')
-            return redirect(url_for('home'))
-    except Exception as e:
-        print("Error at ", e)
-        log(e, request.path)
-        return render_template('error_page.html', error = type(e))
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path)
+            return render_template('error_page.html', error = type(e))
+    else:
+        flash('Nie masz uprawnien', 'danger')
+        return redirect(url_for('home'))
 
 @app.route("/confirm_admin", methods=['GET', 'POST'])
 @login_required
 def confirm_admin():
-    try:
-        admin = User.query.filter_by(role='1').first()
-        if admin == current_user:
-
+    admin = User.query.filter_by(role='1').first()
+    if admin == current_user:
+        try:
             summary, start1, list2, desc1 = awaiting_events()
             list_len_confirm_admin = list2
 
             return render_template('confirm_admin.html',summary=summary, start1=start1, list_len_confirm_admin=list_len_confirm_admin, desc1=desc1)
-        else:
-            flash('Nie masz uprawnien', 'danger')
-            return redirect(url_for('home'))
-    except Exception as e:
-        print("Error at ", e)
-        log(e, request.path)
-        return render_template('error_page.html', error = type(e))
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path)
+            return render_template('error_page.html', error = type(e))
+    else:
+        flash('Nie masz uprawnien', 'danger')
+        return redirect(url_for('home'))
 
 
 buffer = []
 @app.route("/confirm_admin2", methods=['GET', 'POST'])
 @login_required
 def confirm_admin2():
-    try:
-        admin = User.query.filter_by(role='1').first()
-        if admin == current_user:
+    admin = User.query.filter_by(role='1').first()
+    if admin == current_user:
+        try:
             start_date_confirm = request.form['test1']
             start_time, desc = get_desc(start_date_confirm)
             buffer.append(start_date_confirm)
 
             return render_template('confirm_admin2.html',start_date_confirm=start_time, desc_awaiting=desc)
-        else:
-            flash('Nie masz uprawnien', 'danger')
-            return redirect(url_for('home'))
-    except Exception as e:
-        print("Error at ", e)
-        log(e, request.path)
-        return render_template('error_page.html', error = type(e))
-
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path)
+            return render_template('error_page.html', error = type(e))
+    else:
+        flash('Nie masz uprawnien', 'danger')
+        return redirect(url_for('home'))
 @app.route("/confirm_admin3", methods=['GET', 'POST'])
 @login_required
 def confirm_admin3():
-    try:
-        admin = User.query.filter_by(role='1').first()
-        if admin == current_user:
+    admin = User.query.filter_by(role='1').first()
+    if admin == current_user:
+        try:
             start_date_confirm = buffer
 
             update_event_admin(start_date_confirm)
@@ -449,13 +457,13 @@ def confirm_admin3():
             buffer.clear()
             flash('Poprawnie Zatwierdzono Wydarzenia', 'info')
             return redirect(url_for('admin'))
-        else:
-            flash('Nie masz uprawnien', 'danger')
-            return redirect(url_for('home'))
-    except Exception as e:
-        print("Error at ", e)
-        log(e, request.path)
-        return render_template('error_page.html', error = type(e))
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path)
+            return render_template('error_page.html', error = type(e))
+    else:
+        flash('Nie masz uprawnien', 'danger')
+        return redirect(url_for('home'))
 
 
 @app.route("/del", methods=['GET', 'POST'])
@@ -515,27 +523,27 @@ idbuffer1 = []
 @app.route("/rejestr", methods=['GET', 'POST'])
 @login_required
 def rejestr():
-    try:
-        admin = User.query.filter_by(role='1').first()
-        if admin == current_user:
+    admin = User.query.filter_by(role='1').first()
+    if admin == current_user:
+        try:
             user = User.query.order_by(User.username).all()
             len_user = len(user)
             idbuffer1.clear()
             return render_template('rejestr.html', len_user=len_user, name=user)
-        else:
-            flash('Nie masz uprawnien', 'danger')
-            return redirect(url_for('home'))
-    except Exception as e:
-        print("Error at ", e)
-        log(e, request.path)
-        return render_template('error_page.html', error = type(e))
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path)
+            return render_template('error_page.html', error = type(e))
+    else:
+        flash('Nie masz uprawnien', 'danger')
+        return redirect(url_for('home'))
 
 @app.route("/rejestr2", methods=['GET', 'POST'])
 @login_required
 def rejestr2(): #TODO fix gdy bezpośrednio przechodzisz to rejestr2 błąd
-    try:
-        admin = User.query.filter_by(role='1').first()
-        if admin == current_user:
+    admin = User.query.filter_by(role='1').first()
+    if admin == current_user:
+        try:
             id1 = request.form['wyb1']
 
             check_user = User.query.filter_by(id=id1).first()
@@ -588,20 +596,20 @@ def rejestr2(): #TODO fix gdy bezpośrednio przechodzisz to rejestr2 błąd
             visit_nr = post2.visit_nr + 1
 
             return render_template('rejestr2.html', user1=user1, form=form, choroba=choroba, objawy=objawy, visit_nr=visit_nr, notes=notes)
-        else:
-            flash('Nie masz uprawnien', 'danger')
-            return redirect(url_for('home'))
-    except Exception as e:
-        print("Error at ", e)
-        log(e, request.path)
-        return render_template('error_page.html', error = type(e))
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path)
+            return render_template('error_page.html', error = type(e))
+    else:
+        flash('Nie masz uprawnien', 'danger')
+        return redirect(url_for('home'))
 
 @app.route("/rejestr2_more", methods=['GET', 'POST'])
 @login_required
 def rejestr2_more():
-    try:
-        admin = User.query.filter_by(role='1').first()
-        if admin == current_user:
+    admin = User.query.filter_by(role='1').first()
+    if admin == current_user:
+        try:
             id1 = str(idbuffer1[0])
             user1 = User.query.filter_by(id=id1).first()
             post = Post.query.filter_by(post_user_id=id1).all()
@@ -613,20 +621,21 @@ def rejestr2_more():
             post1.reverse()
 
             return render_template('rejestr2_more.html', post=post1, post_len=post_len)
-        else:
-            flash('Nie masz uprawnien', 'danger')
-            return redirect(url_for('home'))
-    except Exception as e:
-        print("Error at ", e)
-        log(e, request.path)
-        return render_template('error_page.html', error = type(e))
+
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path)
+            return render_template('error_page.html', error = type(e))
+    else:
+        flash('Nie masz uprawnien', 'danger')
+        return redirect(url_for('home'))
 
 @app.route("/photos", methods=['GET', 'POST'])
 @login_required
 def photos():
-    try:
-        admin = User.query.filter_by(role='1').first()
-        if admin == current_user:
+    admin = User.query.filter_by(role='1').first()
+    if admin == current_user:
+        try:
             author = User.query.filter_by(id=str(idbuffer1[0])).first()
             photo_name = Photo.query.filter_by(photo_user_id=author.id).all()
             photo_len = len(photo_name)
@@ -647,13 +656,13 @@ def photos():
                 photo1 = url_for('static', filename='profile_pics/' + str(post2.photo))
                 test.append(photo1)
             return render_template('photos.html', photo=test, photo_len=photo_len)
-        else:
-            flash('Nie masz uprawnien', 'danger')
-            return redirect(url_for('home'))
-    except Exception as e:
-        print("Error at ", e)
-        log(e, request.path)
-        return render_template('error_page.html', error = type(e))
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path)
+            return render_template('error_page.html', error = type(e))
+    else:
+        flash('Nie masz uprawnien', 'danger')
+        return redirect(url_for('home'))
 
 def save_picture(form_picture):
     try:
@@ -676,9 +685,9 @@ def save_picture(form_picture):
 @app.route("/rejestr3", methods=['GET', 'POST'])
 @login_required
 def rejestr3():
-    try:
-        admin = User.query.filter_by(role='1').first()
-        if admin == current_user:
+    admin = User.query.filter_by(role='1').first()
+    if admin == current_user:
+        try:
             form = MngForm()
             
             author = User.query.filter_by(id=str(idbuffer1[0])).first()
@@ -706,20 +715,21 @@ def rejestr3():
 
             flash('Poprawnie zaaktualizowano dane pacjęta', 'info')
             return redirect(url_for('admin'))
-        else:
-            flash('Nie masz uprawnien', 'danger')
-            return redirect(url_for('home'))
-    except Exception as e:
-        print("Error at ", e)
-        log(e, request.path)
-        return render_template('error_page.html', error = type(e))
+
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path)
+            return render_template('error_page.html', error = type(e))
+    else:
+        flash('Nie masz uprawnien', 'danger')
+        return redirect(url_for('home'))
 
 @app.route("/stats", methods=['GET', 'POST'])
 @login_required
 def stats():
-    try:
-        admin = User.query.filter_by(role='1').first()
-        if admin == current_user:
+    admin = User.query.filter_by(role='1').first()
+    if admin == current_user:
+        try:
             last_7 = last_events(date=7)
             last_30 = last_events(date=30)
             last_90 = last_events(date=90)
@@ -744,13 +754,14 @@ def stats():
             user_nr = test1
 
             return render_template('stats.html', last_7=last_7, last_30=last_30, last_90=last_90, user_count=user_count_nr, stats_len=stats_len, dates=dates, user_nr=user_nr)
-        else:
-            flash('Nie masz uprawnien', 'danger')
-            return redirect(url_for('home'))
-    except Exception as e:
-        print("Error at ", e)
-        log(e, request.path)
-        return render_template('error_page.html', error = type(e))
+
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path)
+            return render_template('error_page.html', error = type(e))
+    else:
+        flash('Nie masz uprawnien', 'danger')
+        return redirect(url_for('home'))
 
 def user_count():
     try:
@@ -767,3 +778,7 @@ def user_count():
         return render_template('error_page.html', error = type(e))
 
 
+@app.route("/stats", methods=['GET', 'POST'])
+@login_required
+def bug():
+    pass

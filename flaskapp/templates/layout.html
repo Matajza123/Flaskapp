@@ -20,6 +20,7 @@
                 {% if current_user.role == "1" %}
                 <li><a href="{{ url_for('admin')}}">Consola</a></li>
                 {% endif%}
+                <li><a href="{{ url_for('home')}}">Rezerwacja</a></li>
                 <li><a href="{{ url_for('lokalizacja')}}">Lokalizacja</a></li>
                 {% if current_user.is_authenticated %}
                 <li><a href="{{ url_for('account')}}">Konto</a></li>
@@ -55,6 +56,7 @@
             <ul class="menu">
                 <li>&copy; Untitled. All rights reserved.</li>
                 <li>Design: Here</li>
+                <li>Bug: <a href="{{ url_for('bug')}}">Zgłoś</a></li>
             </ul>
         </div>
     </footer>
