@@ -1,0 +1,31 @@
+﻿{% extends "layout.html" %}
+{% block content %}
+<datalist id="time">
+    <option name ="1" value="1">
+    <option name ="7" value="7">
+    <option name ="30" value="30">
+    <option name ="forever" value="Na zawsze">
+</datalist>
+<center><h1 class="major">Blokowanie dostępu</h1></center>
+
+<section id="main" class="wrapper">
+    <div style="text-align: left; padding-left: 200px">
+        <form action="http://localhost:5000/ban_confirm" method="POST">
+            <fieldset class="form-group">
+                <h3>Przepisz ID: </h3>
+                <input type="textarea" autocomplete="off" style="background-color:#312450; color:aliceblue;" name="ban1" required/>
+                <br />
+                <h3>Na ile:</h3>
+                <input list="time" name="time" autocomplete="off" style="background-color:#312450; color:aliceblue;" />
+            </fieldset>
+            
+            <br/>
+            <input type="submit" value="Zatwierdz" />
+        </form>
+        {%for x in range(user_len)%}
+                <li>{{user.pop(0)}}</li>
+        {%endfor%}
+    </div>
+</section>
+
+{% endblock content %}

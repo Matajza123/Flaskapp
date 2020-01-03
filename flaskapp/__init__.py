@@ -16,11 +16,11 @@ login_manager.login_message_category = 'info'
 
 from flaskapp import routes
 #TODO
-    # event day12 fix time      day do godziny 24 
+    #rejestr2 to rejestr not found
+    #notifications
 
     #RODO
     #Polityka prywartośni
-
     #login and register spolszczenie
     
     

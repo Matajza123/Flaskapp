@@ -1,16 +1,18 @@
 import datetime
 from datetime import time
-import secrets
 import time
 import os
 from PIL import Image
 from flaskapp import app, db, bcrypt
-from flask import render_template, url_for, flash, redirect, request
-from flaskapp.forms import RegistrationForm, LoginForm, MngForm
-from flaskapp.models import User, Post, Info, Photo, Stats
+from flask import render_template, url_for, flash, redirect, request, Response
 from flask_sqlalchemy import BaseQuery
 from flask_login import login_user, current_user, logout_user, login_required
+
+from flaskapp.forms import RegistrationForm, LoginForm, MngForm
+from flaskapp.models import User, Post, Info, Photo, Ban_list
 from flaskapp.callendar import events, update_event, update_event_admin, get_desc, add_events, admin_free_events, admin_events, multi_add_events, awaiting_events, last_events
+from flaskapp.functions import log, bugs, ban_user, check_ban_list, save_picture
+from flaskapp.error_handlers import bad_request, forbidden, page_not_found, method_not_allowed, server_error
 
 now = datetime.datetime.now()
 now_date = now.strftime("%d-%m-%Y")
@@ -22,6 +24,7 @@ now_date_years = now.strftime("%Y")
 
 now_time = now.strftime("%H:%M:%S")
 now_hour = now.strftime("%H")
+now_min = now.strftime("%M")
 
 #Daty używane w rezerwacji 
 date_now = datetime.date.today()
@@ -32,28 +35,10 @@ date_4 = date_now + datetime.timedelta(days=4)
 date_5 = date_now + datetime.timedelta(days=5)
 date_6 = date_now + datetime.timedelta(days=6)
 
-def log(e, loc):
-    log_text = []
-    log_text.append(e)
-    log_text.append(loc)
-    log_text.append(now_date)
-    log_text.append(now_time)
-    log_text.append(current_user.id)
+isascii = lambda s: len(s) == len(s.encode())
 
-    with open("flaskapp/logs/log.txt", "a+") as output:
-        output.writelines(str(log_text))
-        output.writelines("\n")
-
-def bugs(name, text):
-    bug_text = []
-    bug_text.append(name)
-    bug_text.append(text)
-    bug_text.append(now_date)
-    bug_text.append(now_time)
-
-    with open("flaskapp/logs/bugs.txt", "a+") as output:
-        output.writelines(str(log_text))
-        output.writelines("\n")
+if now_hour == "8" and now_min == "00":
+    check_ban_list()
 
 @app.route("/home")
 def home():
@@ -62,10 +47,11 @@ def home():
 @app.route("/lokalizacja")
 def lokalizacja():
     try:
-        return render_template('lokalizacja12.html')
+        return render_template('lokalizacja.html')
+    
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, current_user.id)
         return render_template('error_page.html', error = type(e))
 
 #Rezerwacja start
@@ -79,9 +65,10 @@ def rezerwacja():
         list_len = list1
         next1 = url_for('rezerwacja2')
         return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, list1=events(day12), now1=date_now, next=next1)
+    
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, current_user.id)
         return render_template('error_page.html', error = type(e))
         
 @app.route("/rezerwacja2", methods=['GET', 'POST'])
@@ -95,9 +82,10 @@ def rezerwacja2():
         previous = url_for('rezerwacja')
         previous1 = True
         return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, list1=events(day12), now1=date_1, next=next1, previous=previous, previous1=previous1)
+    
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, current_user.id)
         return render_template('error_page.html', error = type(e))
 
 @app.route("/rezerwacja3", methods=['GET', 'POST'])
@@ -111,9 +99,10 @@ def rezerwacja3():
         previous = url_for('rezerwacja2')
         previous1 = True
         return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, list1=events(day12), now1=date_2, next=next1, previous=previous, previous1=previous1)
+    
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, current_user.id)
         return render_template('error_page.html', error = type(e))
 
 @app.route("/rezerwacja4", methods=['GET', 'POST'])
@@ -127,9 +116,10 @@ def rezerwacja4():
         previous = url_for('rezerwacja3')
         previous1 = True
         return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, list1=events(day12), now1=date_3, next=next1, previous=previous, previous1=previous1)
+    
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, current_user.id)
         return render_template('error_page.html', error = type(e))
 
 @app.route("/rezerwacja5", methods=['GET', 'POST'])
@@ -143,9 +133,10 @@ def rezerwacja5():
         previous = url_for('rezerwacja4')
         previous1 = True
         return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, list1=events(day12), now1=date_4, next=next1, previous=previous, previous1=previous1)
+    
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, current_user.id)
         return render_template('error_page.html', error = type(e))
 
 @app.route("/rezerwacja6", methods=['GET', 'POST'])
@@ -159,9 +150,10 @@ def rezerwacja6():
         previous = url_for('rezerwacja5')
         previous1 = True
         return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, list1=events(day12), now1=date_5, next=next1, previous=previous, previous1=previous1)
+    
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, current_user.id)
         return render_template('error_page.html', error = type(e))
 
 @app.route("/rezerwacja7", methods=['GET', 'POST'])
@@ -177,7 +169,7 @@ def rezerwacja7():
         return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, list1=events(day12), now1=date_6, next=next1, previous=previous, previous1=previous1)
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, current_user.id)
         return render_template('error_page.html', error = type(e))
 
 @app.route("/confirm1", methods=['GET', 'POST'])
@@ -189,25 +181,43 @@ def confirm1():
             flash('Nie wybrano terminu', 'danger')
             return redirect(url_for('rezerwacja'))
 
+        if isascii(start_date_confirm) == False:
+            flash('Podano nieprawidłowe znaki', 'danger')
+            return redirect(url_for('rezerwacja'))
+
+        len_ban_list = len(Ban_list.query.order_by(Ban_list.ban_id).all()) + 1
+        for x in range(1, len_ban_list):
+            ban_list = Ban_list.query.filter_by(ban_id=x).first()
+            if current_user.id == ban_list.user_id:
+                if ban_list.time == "Infinite":
+                    flash('Masz dożywotnio zablokowany dostęp do strony', 'danger')
+                    return redirect(url_for('rezerwacja'))
+                else:
+                    time = date_now + datetime.timedelta(days=int(ban_list.time))
+                    flash('Masz zablokowany dostęp do strony do dnia: '+str(time), 'danger')
+                    return redirect(url_for('rezerwacja'))
         letter1 = []
-        print(start_date_confirm)
+        
         for letter in start_date_confirm:
             letter1.append(letter)
 
         for x in range(len(letter1)-10):
             letter1.pop(-1)
 
-        print("".join(letter1))
         letter1 = "".join(letter1)
 
         format = "%Y-%m-%d"
-        letter1 = now.strptime(letter1, format)
+        try:
+            letter1 = now.strptime(letter1, format)
+        except:
+            flash('Nie poprawny format', 'danger')
+            return redirect(url_for('rezerwacja'))
 
         letter1_days = letter1.strftime("%d")
         letter1_months = letter1.strftime("%m")
         letter1_years = letter1.strftime("%Y")
         
-        if int(now_date_years) <= int(letter1_years):
+        if int(now_date_years) <= int(letter1_years):#TODO fix 
             print(int(now_date_years), int(letter1_years))
 
             if int(now_date_months) <= int(letter1_months):
@@ -227,13 +237,12 @@ def confirm1():
             flash('Wybierz poprawną datę', 'danger')
             return redirect(url_for('rezerwacja'))
 
-
-            
         flash('Poprawnie zarezerwowano termin. Proszę poczekać na potwierdzenie które otrzymasz drogą telefoniczną, może to portwać do kilku godzin.', 'info')
         return redirect(url_for('rezerwacja'))
+
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, current_user.id)
         return render_template('error_page.html', error = type(e))
 #Rezerwacja end
 
@@ -255,7 +264,7 @@ def login():
         return render_template('login.html', title='Login', form=form)
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, False)
         return render_template('error_page.html', error = type(e))
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -293,7 +302,7 @@ def register():
         return render_template('register.html', title='Rejestracja', form=form)
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, False)
         return render_template('error_page.html', error = type(e))
 
 @app.route("/account", methods=['GET', 'POST'])
@@ -304,11 +313,11 @@ def account():
         email = current_user.email
         tel = current_user.tel_nr
         age = current_user.age
-
         return render_template('account.html', title='Account', name=name, email=email, tel=tel, age=age,)
+    
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, current_user.id)
         return render_template('error_page.html', error = type(e))
 
 @app.route("/logout", methods=['GET', 'POST'])
@@ -316,9 +325,10 @@ def logout():
     try:
         logout_user()
         return redirect(url_for('home'))
+
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, current_user.id)
         return render_template('error_page.html', error = type(e))   
 
 #admin routes
@@ -340,9 +350,10 @@ def admin():
             return render_template('admin.html', title='admin', start_admin=start_admin, summary_admin=summary_admin, list_len_admin=list_len_admin, desc_admin=desc_admin, 
                                 start_user=start_user, summary_user=summary_user, list_len_user=list_len_user,
                                 start_awaiting=start_awaiting, summary_awaiting=summary_awaiting, list_len_awaiting=list_len_awaiting,desc_awaiting=desc_awaiting, now1=now_date)
+        
         except Exception as e:
             print("Error at ", e)
-            log(e, request.path)
+            log(e, request.path, current_user.id)
             return render_template('error_page.html', error = type(e))
     else:
         flash('Nie masz uprawnien', 'danger')
@@ -361,9 +372,10 @@ def add():
                 now_date1.append(target)
 
             return render_template('add.html', title='add', list1=admin_events(), now1=now, now_date1=now_date1)
+        
         except Exception as e:
             print("Error at ", e)
-            log(e, request.path)
+            log(e, request.path, current_user.id)
             return render_template('error_page.html', error = type(e))
     else:
         flash('Nie masz uprawnien', 'danger')
@@ -394,13 +406,13 @@ def add2():#TODO fix gdy bezpośrednio przechodzisz to add2 błąd
                 flash('Nie podałeś długości wydarzenia', 'danger')
                 return redirect(url_for('add'))
 
-
             multi_add_events(start_date, start_time1, end_time1, len1)
             flash('Poprawnie dodano wydarzenia', 'info')
             return redirect(url_for('admin'))
+        
         except Exception as e:
             print("Error at ", e)
-            log(e, request.path)
+            log(e, request.path, current_user.id)
             return render_template('error_page.html', error = type(e))
     else:
         flash('Nie masz uprawnien', 'danger')
@@ -416,14 +428,14 @@ def confirm_admin():
             list_len_confirm_admin = list2
 
             return render_template('confirm_admin.html',summary=summary, start1=start1, list_len_confirm_admin=list_len_confirm_admin, desc1=desc1)
+        
         except Exception as e:
             print("Error at ", e)
-            log(e, request.path)
+            log(e, request.path, current_user.id)
             return render_template('error_page.html', error = type(e))
     else:
         flash('Nie masz uprawnien', 'danger')
         return redirect(url_for('home'))
-
 
 buffer = []
 @app.route("/confirm_admin2", methods=['GET', 'POST'])
@@ -437,13 +449,15 @@ def confirm_admin2():
             buffer.append(start_date_confirm)
 
             return render_template('confirm_admin2.html',start_date_confirm=start_time, desc_awaiting=desc)
+        
         except Exception as e:
             print("Error at ", e)
-            log(e, request.path)
+            log(e, request.path, current_user.id)
             return render_template('error_page.html', error = type(e))
     else:
         flash('Nie masz uprawnien', 'danger')
         return redirect(url_for('home'))
+
 @app.route("/confirm_admin3", methods=['GET', 'POST'])
 @login_required
 def confirm_admin3():
@@ -451,15 +465,15 @@ def confirm_admin3():
     if admin == current_user:
         try:
             start_date_confirm = buffer
-
             update_event_admin(start_date_confirm)
 
             buffer.clear()
-            flash('Poprawnie Zatwierdzono Wydarzenia', 'info')
+            flash('Zatwierdzono Wydarzenia', 'info')
             return redirect(url_for('admin'))
+        
         except Exception as e:
             print("Error at ", e)
-            log(e, request.path)
+            log(e, request.path, current_user.id)
             return render_template('error_page.html', error = type(e))
     else:
         flash('Nie masz uprawnien', 'danger')
@@ -472,9 +486,10 @@ def delete():
     try:
         delete_txt = ["Tak", "Nie"]
         return render_template('del_warning.html', list1=delete_txt)
+    
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, current_user.id)
         return render_template('error_page.html', error = type(e))
 
 @app.route("/del_confirmed", methods=['GET', 'POST'])
@@ -501,10 +516,6 @@ def delete_confirmed():
                 if photo:
                     db.session.delete(photo)
 
-                stats = Stats.query.filter_by(stats_id=current_user.id).first()
-                if stats:
-                    db.session.delete(stats)
-
                 db.session.delete(user)
 
                 db.session.commit()
@@ -515,7 +526,7 @@ def delete_confirmed():
                 return redirect(url_for('home'))
     except Exception as e:
         print("Error at ", e)
-        log(e, request.path)
+        log(e, request.path, current_user.id)
         return render_template('error_page.html', error = type(e))
 
 idbuffer1 = []
@@ -532,7 +543,7 @@ def rejestr():
             return render_template('rejestr.html', len_user=len_user, name=user)
         except Exception as e:
             print("Error at ", e)
-            log(e, request.path)
+            log(e, request.path, current_user.id)
             return render_template('error_page.html', error = type(e))
     else:
         flash('Nie masz uprawnien', 'danger')
@@ -581,11 +592,10 @@ def rejestr2(): #TODO fix gdy bezpośrednio przechodzisz to rejestr2 błąd
             user1 = User.query.filter_by(id=id1).first()
             info = Info.query.filter_by(info_id=id1).first()
 
-            post = Post.query.filter_by(post_user_id=id1).all()
-            post_len = len(post)
             post1 = []
-            for x in range(post_len):
-                post1.append(post.pop(0))
+            posts = Post.query.filter_by(post_user_id=id1).all()
+            for post in posts:
+                post1.append(post)
             
             post1.reverse()
             post2 = post1.pop(0)
@@ -596,9 +606,10 @@ def rejestr2(): #TODO fix gdy bezpośrednio przechodzisz to rejestr2 błąd
             visit_nr = post2.visit_nr + 1
 
             return render_template('rejestr2.html', user1=user1, form=form, choroba=choroba, objawy=objawy, visit_nr=visit_nr, notes=notes)
+        
         except Exception as e:
             print("Error at ", e)
-            log(e, request.path)
+            log(e, request.path, current_user.id)
             return render_template('error_page.html', error = type(e))
     else:
         flash('Nie masz uprawnien', 'danger')
@@ -610,21 +621,20 @@ def rejestr2_more():
     admin = User.query.filter_by(role='1').first()
     if admin == current_user:
         try:
+            post1 = []
             id1 = str(idbuffer1[0])
             user1 = User.query.filter_by(id=id1).first()
-            post = Post.query.filter_by(post_user_id=id1).all()
-            post_len = len(post)
-            post1 = []
-            for x in range(post_len):
-                post1.append(post.pop(0))
+            posts = Post.query.filter_by(post_user_id=id1).all()
+            post_len = len(posts)
+            for post in posts:
+                post1.append(post)
             
             post1.reverse()
-
             return render_template('rejestr2_more.html', post=post1, post_len=post_len)
 
         except Exception as e:
             print("Error at ", e)
-            log(e, request.path)
+            log(e, request.path, current_user.id)
             return render_template('error_page.html', error = type(e))
     else:
         flash('Nie masz uprawnien', 'danger')
@@ -632,7 +642,7 @@ def rejestr2_more():
 
 @app.route("/photos", methods=['GET', 'POST'])
 @login_required
-def photos():
+def photos(): #TODO fix
     admin = User.query.filter_by(role='1').first()
     if admin == current_user:
         try:
@@ -656,38 +666,22 @@ def photos():
                 photo1 = url_for('static', filename='profile_pics/' + str(post2.photo))
                 test.append(photo1)
             return render_template('photos.html', photo=test, photo_len=photo_len)
+        
         except Exception as e:
             print("Error at ", e)
-            log(e, request.path)
+            log(e, request.path, current_user.id)
             return render_template('error_page.html', error = type(e))
     else:
         flash('Nie masz uprawnien', 'danger')
         return redirect(url_for('home'))
-
-def save_picture(form_picture):
-    try:
-        random_hex = secrets.token_hex(8)
-        _, f_ext = os.path.splitext(form_picture.filename)
-        picture_fn = random_hex + f_ext
-        picture_path = os.path.join(app.root_path, 'static/profile_pics', picture_fn)
-
-        output_size = (1920, 1080)
-        i = Image.open(form_picture)
-        i.thumbnail(output_size)
-        i.save(picture_path)
-
-        return picture_fn
-    except Exception as e:
-        print("Error at ", e)
-        log(e, request.path)
-        return render_template('error_page.html', error = type(e))
 
 @app.route("/rejestr3", methods=['GET', 'POST'])
 @login_required
 def rejestr3():
     admin = User.query.filter_by(role='1').first()
     if admin == current_user:
-        try:
+        if "0" == "0":
+        #try:
             form = MngForm()
             
             author = User.query.filter_by(id=str(idbuffer1[0])).first()
@@ -701,9 +695,8 @@ def rejestr3():
                 visit_nr1 = post_visit_nr + 1
             else:
                 visit_nr1 = 0
-
             
-            if form.picture.data:
+            if form.picture.data: #TODO fix visit_nr
                 picture_file = save_picture(form.picture.data)
                 author.image_file = picture_file
                 photo1 = Photo(author=author, photo=author.image_file, created=now_date)
@@ -716,10 +709,11 @@ def rejestr3():
             flash('Poprawnie zaaktualizowano dane pacjęta', 'info')
             return redirect(url_for('admin'))
 
-        except Exception as e:
-            print("Error at ", e)
-            log(e, request.path)
-            return render_template('error_page.html', error = type(e))
+        #except Exception as e:
+            #print("Error at ", e)
+            #log(e, request.path, current_user.id)
+            #return render_template('error_page.html', error = type(e))
+            #return redirect(url_for('admin'))
     else:
         flash('Nie masz uprawnien', 'danger')
         return redirect(url_for('home'))
@@ -737,46 +731,26 @@ def stats():
             user_count_nr = User.query.order_by(User.id).all()
             user_count_nr = len(user_count_nr)
 
-            stats1 = Stats.query.order_by(Stats.stats_id).all()
-            stats_len = len(stats1)
-            post1 = []
-            test = []
-            test1 = []
-            stats1.reverse()
-            for x in range(stats_len):
-                post1.append(stats1.pop(0))
-                user13 = post1.pop(0)
-                user14 = user13.user_count
-                user13 = user13.date
-                test.append(user13)
-                test1.append(user14)
-            dates = test
-            user_nr = test1
+            users = User.query.order_by(User.id).all()
+            avr_age = []
+            for user in users:
+                avr_age.append(user.age)
 
-            return render_template('stats.html', last_7=last_7, last_30=last_30, last_90=last_90, user_count=user_count_nr, stats_len=stats_len, dates=dates, user_nr=user_nr)
+            avr_nr = 0
+            avr_nr0 = len(avr_age)
+            for x in range(len(avr_age)):
+                avr_nr += int(avr_age.pop(0))
+            avr_nr = avr_nr/avr_nr0
+
+            return render_template('stats.html', last_7=last_7, last_30=last_30, last_90=last_90, user_count=user_count_nr, avr_age=avr_nr)
 
         except Exception as e:
             print("Error at ", e)
-            log(e, request.path)
+            log(e, request.path, current_user.id)
             return render_template('error_page.html', error = type(e))
     else:
         flash('Nie masz uprawnien', 'danger')
         return redirect(url_for('home'))
-
-def user_count():
-    try:
-        stats1 = Stats.query.filter_by(date=now_date).first()
-        if stats1 == None:
-            user_count = User.query.order_by(User.id).all()
-            user_count = len(user_count)
-            stats = Stats(date=str(now_date), user_count=str(user_count))
-            db.session.add(stats)
-            db.session.commit()
-    except Exception as e:
-        print("Error at ", e)
-        log(e, request.path)
-        return render_template('error_page.html', error = type(e))
-
 
 @app.route("/bug", methods=['GET', 'POST'])
 @login_required
@@ -786,5 +760,61 @@ def bug():
 @app.route("/bug_confirm", methods=['GET', 'POST'])
 @login_required
 def bug_confirm():
-    id1 = request.form['bug1']
-    bugs(current_user.username, id1)
+    try:
+        text = request.form['bug1']
+        bugs(current_user.username, current_user.id, text)
+        flash("Poprawnie zgłoszono błąd", "info")
+        return redirect(url_for('home'))
+
+    except Exception as e:
+        print("Error at ", e)
+        log(e, request.path, current_user.id)
+        return render_template('error_page.html', error = type(e))
+
+@app.route("/ban", methods=['GET', 'POST'])
+@login_required
+def ban():
+    admin = User.query.filter_by(role='1').first()
+    if admin == current_user:
+        try:
+            user = User.query.order_by(User.username).all()
+            user_len = len(user)
+            return render_template('ban.html', user=user, user_len=user_len)
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path, current_user.id)
+            return render_template('error_page.html', error = type(e))
+    else:
+        flash('Nie masz uprawnien', 'danger')
+        return redirect(url_for('home'))
+
+@app.route("/ban_confirm", methods=['GET', 'POST'])
+@login_required
+def ban_confirm():
+    user_id = request.form['ban1']
+    time = request.form['time']
+
+    if time == "1": time = "1"
+    if time == "7": time = "7"
+    if time == "30": time = "30"
+    if time == "Na zawsze": time = "Infinite"
+
+    if user_id == "1":
+        flash("Nie można zablokować admina", "danger")
+        return redirect(url_for('admin'))
+
+    ban_list = Ban_list.query.filter_by(user_id = user_id).first()
+    if not ban_list == None:
+        flash('Użytkownik ma już zablokowany dostęp', 'danger')
+        return redirect(url_for('admin'))
+    else:
+        try:
+            ban_user(user_id, time)
+            flash('Poprawnie zablokowano dostęp', 'info')
+            return redirect(url_for('admin'))
+
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path, current_user.id)
+            return render_template('error_page.html', error = type(e))
+

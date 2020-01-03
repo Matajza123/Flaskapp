@@ -5,19 +5,19 @@
 
 <section id="main" class="wrapper">
     <div style="text-align: left; padding-left: 200px">
+        <form action="http://localhost:5000/rejestr2" method="POST">
+            <fieldset class="form-group">
+                <h3>Przepisz ID: </h3>
+                <input type="text" list="user_list" name="wyb1" autocomplete="off" />
+                <br />
+            </fieldset>
+            <input type="submit" value="Zatwierdz" />
+        </form>
         <h3>Wybierz pacjęta: </h3>
         {% for x in range(len_user) %}
         <li>{{name.pop(0)}}</li>
         {% endfor %}
         <br />
-        <form action="http://localhost:5000/rejestr2" method="POST">
-            <fieldset class="form-group">
-                <h3>Przepisz ID: </h3>
-                <input type="text" list="user_list" name="wyb1" />
-                <br />
-            </fieldset>
-            <input type="submit" value="Zatwierdz" />
-        </form>
     </div>
 </section>
 

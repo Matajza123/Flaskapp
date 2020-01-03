@@ -1,0 +1,11 @@
+﻿{% extends "layout.html" %}
+{% block content %}
+<h1 class="major"><center>Napotkaliśmy błąd</center></h1>
+<section id="main" class="wrapper">
+    <div style="text-align: center">
+        <h3>{{error}}</h3>
+        <h2><a class="button" href="{{ url_for('home') }}">Powrót</a>
+    </div>
+</section>
+
+{% endblock content %}

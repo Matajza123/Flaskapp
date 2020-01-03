@@ -56,10 +56,10 @@ class Photo(db.Model):
     def __repr__(self):
         return f"Photo('{self.photo}')"
 
-class Stats(db.Model):
-    stats_id = db.Column(db.Integer, nullable=False, primary_key=True)
-    date = db.Column(db.Text)
-    user_count = db.Column(db.Text)
+class Ban_list(db.Model):
+    ban_id = db.Column(db.Integer, nullable=False, primary_key=True)
+    user_id = db.Column(db.Integer)
+    time = db.Column(db.Text)
 
     def __repr__(self):
-        return f"Stats('{self.date}','{self.user_count}')"
+        return f"Ban_list('{self.ban_id }', '{self.user_id}','{self.time}')"

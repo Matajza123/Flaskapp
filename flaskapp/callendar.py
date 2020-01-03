@@ -78,7 +78,6 @@ def events(day12):
         start_date = start_date.isoformat() + "Z"
         end_date = end_date.isoformat() + "Z"
 
-
         events_result = service.events().list(calendarId='primary', timeMin=start_date, timeMax=end_date, singleEvents=True, orderBy='startTime').execute()
         events = events_result.get('items', [])
     
