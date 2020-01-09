@@ -22,7 +22,7 @@
         {% else %}
         {% for x in range(list_len_admin) %}
         <ul>
-            <li>{{summary_admin.pop(0)}},  {{start_admin.pop(0)}}, {{desc_admin.pop(0)}}</li>
+            <li>{{summary_admin.pop(0)}},  {{start_admin.pop(0)}}</li>
         </ul>
         {% endfor %}
         {% endif %}
@@ -37,7 +37,7 @@
         {% else %}
         {% for x in range(list_len_awaiting) %}
         <ul>
-            <li>{{summary_awaiting.pop(0)}},  {{start_awaiting.pop(0)}},  {{desc_awaiting.pop(0)}}</li>
+            <li>{{summary_awaiting.pop(0)}},  {{start_awaiting.pop(0)}}</li>
         </ul>
 
         {% endfor %}

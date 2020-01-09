@@ -117,9 +117,13 @@ def admin_free_events():
     list2 = 0  # ilość wydarzeń
 
     #uzyskiwanie wydarzeń z google callendar
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    events_result = service.events().list(calendarId='primary', timeMin=now, singleEvents=True, orderBy='startTime').execute()
-    events = events_result.get('items', [])
+    try:
+        now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+        events_result = service.events().list(calendarId='primary', timeMin=now, singleEvents=True, orderBy='startTime').execute()
+        events = events_result.get('items', [])
+    except Exception as e:
+        log(e, "admin_free_events calendar failed", 0)
+        return False
     
     if not events:
         list2 = False
@@ -158,9 +162,13 @@ def awaiting_events():
     list2 = 0  # ilość wydarzeń
 
     #uzyskiwanie wydarzeń z google callendar
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    events_result = service.events().list(calendarId='primary', timeMin=now, singleEvents=True, orderBy='startTime').execute()
-    events = events_result.get('items', [])
+    try:
+        now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+        events_result = service.events().list(calendarId='primary', timeMin=now, singleEvents=True, orderBy='startTime').execute()
+        events = events_result.get('items', [])
+    except Exception as e:
+        log(e, "awaiting_events calendar failed", 0)
+        return False
     
     if not events:
         list2 = False
@@ -199,9 +207,14 @@ def get_desc(start_date_confirm):
     desc1 = [] # opis wydarzenia
 
     #uzyskiwanie wydarzeń z google callendar
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    events_result = service.events().list(calendarId='primary', timeMin=now, singleEvents=True, orderBy='startTime').execute()
-    events = events_result.get('items', [])
+    try:
+        now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+        events_result = service.events().list(calendarId='primary', timeMin=now, singleEvents=True, orderBy='startTime').execute()
+        events = events_result.get('items', [])
+    except Exception as e:
+        log(e, "get_desc calendar failed", 0)
+        return False
+    
 
     for event in events:
         letters = []
@@ -237,9 +250,13 @@ def admin_events():
     list2 = 0 # ilość wydarzeń
 
     #uzyskiwanie wydarzeń z google callendar
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    events_result = service.events().list(calendarId='primary', timeMin=now, singleEvents=True, orderBy='startTime').execute()
-    events = events_result.get('items', [])
+    try:
+        now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+        events_result = service.events().list(calendarId='primary', timeMin=now, singleEvents=True, orderBy='startTime').execute()
+        events = events_result.get('items', [])
+    except Exception as e:
+        log(e, "admin_events calendar failed", 0)
+        return False
     
     if not events:
         list2 = False
@@ -265,12 +282,44 @@ def admin_events():
             str1 = ''.join(letters)
 
             summary.append(event['summary'])
-            desc1.append(desc)
             start1.append(str(str1)) #start
             list2+=1
         
 
     return summary, start1, list2, desc1
+
+def get_id(start_date):
+    start1 = [] # data rozpoczecia wydzarzenia
+    id0 = [] # opis wydarzenia
+    try:
+        now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+        events_result = service.events().list(calendarId='primary', timeMin=now, singleEvents=True, orderBy='startTime').execute()
+        events = events_result.get('items', [])
+    except Exception as e:
+        log(e, "get_id google calendar failed", 0)
+        return False
+
+    for event in events:
+        letters = []
+        str1 = []
+
+        start = event['start'].get('dateTime', event['start'].get('date'))
+        desc = event.get('description', 'brak danych użytkownika')
+
+        if event['summary'] == 'Oczekujące':
+            len1 = list(start)
+            len1.pop(10)
+            for x in range(9):
+                len1.pop(15)
+            len1.insert(10, "  -  ")
+
+            str1 = ''.join(len1)
+            if start_date == str1:
+                id0.append(desc)
+                id0 = ''.join(id0)
+                
+
+    return id0
 
 def add_events():
     #Dodaje jedno wydarzenie teraz + 15 min
@@ -288,9 +337,13 @@ def update_event(start_date_confirm):
     #użytkownik używa tej funkcji
     
     #uzyskiwanie wydarzeń z google callendar
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    events_result = service.events().list(calendarId='primary', timeMin=now, singleEvents=True, orderBy='startTime').execute()
-    events = events_result.get('items', [])
+    try:
+        now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+        events_result = service.events().list(calendarId='primary', timeMin=now, singleEvents=True, orderBy='startTime').execute()
+        events = events_result.get('items', [])
+    except Exception as e:
+        log(e, "update_event google calendar failed", 0)
+        return False
 
     for event in events:
         if event['summary'] == 'Wolne':
@@ -312,19 +365,23 @@ def update_event(start_date_confirm):
             letters.insert(10, "  -  ")
             str1 = ''.join(letters)
             if str1 == start_date_confirm:
-                event_result = service.events().patch(calendarId='primary',eventId=event['id'],body={"summary": 'Oczekujące',"description":str(current_user)},).execute()
+                event_result = service.events().patch(calendarId='primary',eventId=event['id'],body={"summary": 'Oczekujące',"description":str(current_user.id)},).execute()
         
 def update_event_admin(start_date_confirm):
     #aktualizuje wydarzenie bazując na dacie rozpoczęcia (start_date_confirm)
     #zmienia nazwę z "Oczekujące" na "Zatwierdzone"
     #admin używa tej funkcji
-     
-    start_date_update = start_date_confirm.pop(0)  #przekazuje wartość z confirm_admin2 do confirm_admin3
 
     #uzyskiwanie wydarzeń z google callendar
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    events_result = service.events().list(calendarId='primary', timeMin=now, singleEvents=True, orderBy='startTime').execute()
-    events = events_result.get('items', [])
+    try:
+        now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+        events_result = service.events().list(calendarId='primary', timeMin=now, singleEvents=True, orderBy='startTime').execute()
+        events = events_result.get('items', [])
+    except Exception as e:
+        log(e, "update_event_admin google calendar failed", 0)
+        return False
+
+
 
     for event in events:
         if event['summary'] == 'Oczekujące':
@@ -344,8 +401,7 @@ def update_event_admin(start_date_confirm):
 
             letters.insert(10, "  -  ")
             str1 = ''.join(letters)
-            if str1 == start_date_update:
-                print('succes', str1)
+            if str1 == start_date_confirm:
                 event_result = service.events().patch(calendarId='primary',eventId=event['id'],body={"summary": 'Zatwierdzone',},).execute()
 
 def multi_add_events(start_date, start_time1, end_time1, len1):
@@ -393,9 +449,12 @@ def last_events(date):
     now = datetime.datetime.utcnow().isoformat() + 'Z' 
     now_last = datetime.datetime.now() - datetime.timedelta(hours=time1)
     now_last = now_last.isoformat() + 'Z'
-
-    events_result = service.events().list(calendarId='primary', timeMin=now_last,timeMax=now, singleEvents=True, orderBy='startTime').execute()
-    events = events_result.get('items', [])
+    try:
+        events_result = service.events().list(calendarId='primary', timeMin=now_last,timeMax=now, singleEvents=True, orderBy='startTime').execute()
+        events = events_result.get('items', [])
+    except Exception as e:
+        log(e, "last_events calendar failed", 0)
+        return False
     
     if not events:
         list1 = False

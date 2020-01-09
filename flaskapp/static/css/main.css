@@ -245,7 +245,7 @@ input, select, textarea {
 		}
 
 		h3 {
-			font-size: 1em;
+			font-size: 0.8em;
 		}
 
 		h4 {
@@ -2357,6 +2357,7 @@ input, select, textarea {
 		select option {
 			color: #ffffff;
 			background: #312450;
+			
 		}
 
 		select:focus::-ms-value {
@@ -3373,6 +3374,7 @@ input, select, textarea {
 		display: -ms-flex;
 		display: flex;
 		background-color: #5e42a6;
+		transition: opacity 2s;
 		cursor: default;
 		padding: 1.75em 2em;
 	}

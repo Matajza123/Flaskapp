@@ -3,12 +3,14 @@
 <center><h1 class="major">Zatwierdzanie terminów</h1></center>
     <section id="main" class="wrapper">
         <div style="text-align: center;">
-        <h2>Użytkownik:</h2><h3>{{desc_awaiting.pop(0)}}</h3>
+        <h2>Użytkownik:</h2><h3>{{desc_awaiting}}</h3>
         <br />
-        <h2>Data:</h2><h3>{{start_date_confirm.pop(0)}}</h3>
+        <h2>Data:</h2><h3>{{start_date_confirm[0]}}</h3>
 
 
         <form action="http://localhost:5000/confirm_admin3" method="POST">
+
+            <input type="hidden" name="start_date" value="{{start_date_confirm[0]}}" />
             <input type="submit" value="Zatwierdz" />
         </form>
         <h3>Lub</h3>

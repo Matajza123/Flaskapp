@@ -1,9 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<datalist id="termin_0">
+    {% for x in range(list_len) %}
+    <option name="time{{x}}" value="{{start.pop(0)}}">
+    {% endfor %}
+</datalist>
+
 <h1 class="major"><center>Terminarz - {{now1}} </center></h1>
 
-<section id="main" class="wrapper">
     <div style="text-align: center;">
         {% if previous1 == True %}
         <h3><a class="button" href="{{previous}}">Poprzedni dzień</a> 
@@ -25,17 +30,18 @@
         <form action="http://localhost:5000/confirm1" method="POST">
             <br />
             <hr />
-            <h2>Wybierz termin:</h2>
+            <h2>Wybierz termin</h2>
+
             
-            <div align="center">
-                <fieldset class="form-group">
-                <select id="countries" name="test1">
-                    {% for x in range(list_len) %}
-                    <option value="{{start[x]}}" name="time{{x}}">{{start[x]}}</option>
-                    {% endfor %}
+            <fieldset class="form-group">
+                <select id="countries" onfocus="this.defaultIndex=this.selectedIndex;" onchange="this.selectedIndex=this.defaultIndex;">
+                    <option value="1">Country1</option>
+                    <option value="2">Country2</option>
+                    <option value="2">Country2</option>
+                    <option value="2">Country2</option>
+                    <option value="2">Country2</option>
                 </select>
             </fieldset>
-            </div>
             <br />
             <input type="checkbox" id="demo-human" name="demo-human" required>
             <label for="demo-human">Nie jestem robotem</label>
@@ -45,12 +51,17 @@
         </form>
 
         {% endif %}
-
-        <div>
-            {% for x in range(9) %}
-                <br />
-            {% endfor %}
-        </div>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
     </div>
-</section>
 {% endblock content %}

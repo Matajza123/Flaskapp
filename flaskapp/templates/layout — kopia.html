@@ -35,7 +35,7 @@
     </header>
     
     
-    <img src="/static/icons/navbar0.png" height="50" width="50" style="padding: 7px;" onclick="myFunction()">
+    <img src="/static/icons/navbar0.png" height="42" width="42" style="padding: 7px;" onclick="myFunction()">
     <section id="main" class="wrapper">
                 {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -70,12 +70,14 @@
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
 
-    <script> <!--TODO add fadein fadeout -->
+    <script>
         function myFunction() {
           var x = document.getElementById("header");
           if (x.style.display === "none") {
+              $("nav").fadeOut();
               x.style.display = "block";
             } else {
+                $("nav").fadeIn();
                 x.style.display = "none";
           }
         }

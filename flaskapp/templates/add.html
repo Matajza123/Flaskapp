@@ -1,30 +1,5 @@
 ﻿{% extends "layout.html" %}
 {% block content %}
-<datalist id="time">
-    {% for x in range(24) %}
-        <option name ="time{{x}}" value="{{x}}">
-    {% endfor %}
-</datalist>
-
-<datalist id="time1">
-    {% for x in range(24) %}
-    <option name="time1{{x}}" value="{{x}}">
-        {% endfor %}
-</datalist>
-
-<datalist id="start_date">
-    {% for x in range(7) %}
-        <option name="start{{x}}" value="{{now_date1.pop(0)}}">
-    {% endfor %}
-</datalist>
-
-<datalist id="lenght">
-    <option name="15min" value="15">
-    <option name="30min" value="30">
-    <option name="45min" value="45">
-    <option name="60min" value="60">
-</datalist>
-
 <center><h1 class="major">Seryjne dodawanie terminów</h1></center>
 
 <section id="main" class="wrapper">
@@ -32,10 +7,36 @@
         <form action="http://localhost:5000/add2" method="POST">
             <h3>Wybierz zakres</h3>
             <fieldset>
-                <h3>Data: <input list="start_date" name="start_date" autocomplete="off" style="background-color:#312450; color:aliceblue;" /></h3>
-                <h3>Od: <input list="time" name="start_time" autocomplete="off" style="background-color:#312450; color:aliceblue;" /></h3>
-                <h3>Do: <input list="time1" name="end_time" autocomplete="off" style="background-color:#312450; color:aliceblue;" /></h3>
-                <h3>Długość:<input list="lenght" name="lenght" autocomplete="off" style="background-color:#312450; color:aliceblue;" /></h3>
+                <div align='center'>
+                <h3>Data:</h3>
+                <select name="start_date">
+                    {% for x in range(7) %}
+                        <option value="{{now_date1[x]}}">{{now_date1[x]}}</option>
+                    {% endfor %}
+                </select>
+
+                <h3>Od:</h3>
+                <select name="start_time">
+                    {% for x in range(24) %}
+                        <option value="{{x}}">{{x}}</option>
+                    {% endfor %}
+                </select>
+
+                <h3>Do:</h3>
+                <select name="end_time">
+                    {% for x in range(1, 24) %}
+                        <option value="{{x}}">{{x}}</option>
+                    {% endfor %}
+                </select>
+
+                <h3>Długość:</h3>
+                <select name="lenght">
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                    <option value="45">45</option>
+                    <option value="60">60</option>
+                </select>
+            </div>
             </fieldset>
             <br />
             <input type="submit" value="Zatwierdz" class="button" />

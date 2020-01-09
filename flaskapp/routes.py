@@ -3,15 +3,15 @@ from datetime import time
 import time
 import os
 from PIL import Image
-from flaskapp import app, db, bcrypt
+from flaskapp import app, db, bcrypt, cache
 from flask import render_template, url_for, flash, redirect, request, Response
 from flask_sqlalchemy import BaseQuery
 from flask_login import login_user, current_user, logout_user, login_required
 
 from flaskapp.forms import RegistrationForm, LoginForm, MngForm
 from flaskapp.models import User, Post, Info, Photo, Ban_list
-from flaskapp.callendar import events, update_event, update_event_admin, get_desc, add_events, admin_free_events, admin_events, multi_add_events, awaiting_events, last_events
-from flaskapp.functions import log, bugs, ban_user, check_ban_list, save_picture
+from flaskapp.callendar import events, update_event, update_event_admin, get_desc, get_id, add_events, admin_free_events, admin_events, multi_add_events, awaiting_events, last_events
+from flaskapp.functions import log, bugs, ban_user, check_ban_list, save_picture, target_user, target_user_check
 from flaskapp.error_handlers import bad_request, forbidden, page_not_found, method_not_allowed, server_error
 
 now = datetime.datetime.now()
@@ -57,14 +57,15 @@ def lokalizacja():
 #Rezerwacja start
 @app.route('/')
 @app.route("/rezerwacja", methods=['GET', 'POST'])
-@login_required
+@cache.cached()
+#@login_required
 def rezerwacja():
     try:
         day12 = False
         summary, start1, list1 = events(day12)
         list_len = list1
         next1 = url_for('rezerwacja2')
-        return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, list1=events(day12), now1=date_now, next=next1)
+        return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, now1=date_now, next=next1)
     
     except Exception as e:
         print("Error at ", e)
@@ -72,7 +73,8 @@ def rezerwacja():
         return render_template('error_page.html', error = type(e))
         
 @app.route("/rezerwacja2", methods=['GET', 'POST'])
-@login_required
+@cache.cached()
+#@login_required
 def rezerwacja2():
     try:
         day12 = 1
@@ -81,7 +83,7 @@ def rezerwacja2():
         next1 = url_for('rezerwacja3')
         previous = url_for('rezerwacja')
         previous1 = True
-        return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, list1=events(day12), now1=date_1, next=next1, previous=previous, previous1=previous1)
+        return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, now1=date_1, next=next1, previous=previous, previous1=previous1)
     
     except Exception as e:
         print("Error at ", e)
@@ -90,6 +92,7 @@ def rezerwacja2():
 
 @app.route("/rezerwacja3", methods=['GET', 'POST'])
 @login_required
+@cache.cached()
 def rezerwacja3():
     try:
         day12 = 2
@@ -98,7 +101,7 @@ def rezerwacja3():
         next1 = url_for('rezerwacja4')
         previous = url_for('rezerwacja2')
         previous1 = True
-        return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, list1=events(day12), now1=date_2, next=next1, previous=previous, previous1=previous1)
+        return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, now1=date_2, next=next1, previous=previous, previous1=previous1)
     
     except Exception as e:
         print("Error at ", e)
@@ -107,6 +110,7 @@ def rezerwacja3():
 
 @app.route("/rezerwacja4", methods=['GET', 'POST'])
 @login_required
+@cache.cached()
 def rezerwacja4():
     try:
         day12 = 3
@@ -115,7 +119,7 @@ def rezerwacja4():
         next1 = url_for('rezerwacja5')
         previous = url_for('rezerwacja3')
         previous1 = True
-        return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, list1=events(day12), now1=date_3, next=next1, previous=previous, previous1=previous1)
+        return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, now1=date_3, next=next1, previous=previous, previous1=previous1)
     
     except Exception as e:
         print("Error at ", e)
@@ -124,6 +128,7 @@ def rezerwacja4():
 
 @app.route("/rezerwacja5", methods=['GET', 'POST'])
 @login_required
+@cache.cached()
 def rezerwacja5():
     try:
         day12 = 4
@@ -132,7 +137,7 @@ def rezerwacja5():
         next1 = url_for('rezerwacja6')
         previous = url_for('rezerwacja4')
         previous1 = True
-        return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, list1=events(day12), now1=date_4, next=next1, previous=previous, previous1=previous1)
+        return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, now1=date_4, next=next1, previous=previous, previous1=previous1)
     
     except Exception as e:
         print("Error at ", e)
@@ -141,6 +146,7 @@ def rezerwacja5():
 
 @app.route("/rezerwacja6", methods=['GET', 'POST'])
 @login_required
+@cache.cached()
 def rezerwacja6():
     try:
         day12 = 5
@@ -149,7 +155,7 @@ def rezerwacja6():
         next1 = url_for('rezerwacja7')
         previous = url_for('rezerwacja5')
         previous1 = True
-        return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, list1=events(day12), now1=date_5, next=next1, previous=previous, previous1=previous1)
+        return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, now1=date_5, next=next1, previous=previous, previous1=previous1)
     
     except Exception as e:
         print("Error at ", e)
@@ -158,6 +164,7 @@ def rezerwacja6():
 
 @app.route("/rezerwacja7", methods=['GET', 'POST'])
 @login_required
+@cache.cached()
 def rezerwacja7():
     try:
         day12 = 6
@@ -166,7 +173,7 @@ def rezerwacja7():
         previous = url_for('rezerwacja6')
         previous1 = True
         next1 = False
-        return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, list1=events(day12), now1=date_6, next=next1, previous=previous, previous1=previous1)
+        return render_template('rezerwacja.html', start=start1, summary=summary, list_len=list_len, now1=date_6, next=next1, previous=previous, previous1=previous1)
     except Exception as e:
         print("Error at ", e)
         log(e, request.path, current_user.id)
@@ -217,7 +224,7 @@ def confirm1():
         letter1_months = letter1.strftime("%m")
         letter1_years = letter1.strftime("%Y")
         
-        if int(now_date_years) <= int(letter1_years):#TODO fix 
+        if int(now_date_years) <= int(letter1_years):#TODO fix blisko nowego roku błąd ponieważ niepoprawna data 
             print(int(now_date_years), int(letter1_years))
 
             if int(now_date_months) <= int(letter1_months):
@@ -333,10 +340,11 @@ def logout():
 
 #admin routes
 @app.route("/admin", methods=['GET', 'POST'])
-@login_required
+#@login_required
 def admin():
     admin = User.query.filter_by(role='1').first()
-    if admin == current_user:
+    if "0" == "0":
+    #if admin == current_user:
         try:
             summary_admin, start_admin, list_admin, desc_admin = admin_events() # zatwierdzone 
             list_len_admin = list_admin
@@ -347,9 +355,9 @@ def admin():
             summary_user, start_user, list_user = admin_free_events() # wolne terminy
             list_len_user = list_user
 
-            return render_template('admin.html', title='admin', start_admin=start_admin, summary_admin=summary_admin, list_len_admin=list_len_admin, desc_admin=desc_admin, 
+            return render_template('admin.html', title='admin', start_admin=start_admin, summary_admin=summary_admin, list_len_admin=list_len_admin, 
                                 start_user=start_user, summary_user=summary_user, list_len_user=list_len_user,
-                                start_awaiting=start_awaiting, summary_awaiting=summary_awaiting, list_len_awaiting=list_len_awaiting,desc_awaiting=desc_awaiting, now1=now_date)
+                                start_awaiting=start_awaiting, summary_awaiting=summary_awaiting, list_len_awaiting=list_len_awaiting, now1=now_date)
         
         except Exception as e:
             print("Error at ", e)
@@ -383,7 +391,7 @@ def add():
 
 @app.route("/add2", methods=['GET', 'POST'])
 @login_required
-def add2():#TODO fix gdy bezpośrednio przechodzisz to add2 błąd
+def add2():#TODO fix gdy bezpośrednio przechodzisz to add2 błąd odświeżenie naprawia
     admin = User.query.filter_by(role='1').first()
     if admin == current_user:
         try:
@@ -437,8 +445,8 @@ def confirm_admin():
         flash('Nie masz uprawnien', 'danger')
         return redirect(url_for('home'))
 
-buffer = []
-@app.route("/confirm_admin2", methods=['GET', 'POST'])
+
+@app.route("/confirm_admin2", methods=['GET', 'POST'])#HEHE
 @login_required
 def confirm_admin2():
     admin = User.query.filter_by(role='1').first()
@@ -446,9 +454,11 @@ def confirm_admin2():
         try:
             start_date_confirm = request.form['test1']
             start_time, desc = get_desc(start_date_confirm)
-            buffer.append(start_date_confirm)
 
-            return render_template('confirm_admin2.html',start_date_confirm=start_time, desc_awaiting=desc)
+            id0 = get_id(start_date_confirm)
+            desc0 = User.query.filter_by(id=id0).first()
+
+            return render_template('confirm_admin2.html',start_date_confirm=start_time, desc_awaiting=desc0, id0=id0)
         
         except Exception as e:
             print("Error at ", e)
@@ -464,10 +474,9 @@ def confirm_admin3():
     admin = User.query.filter_by(role='1').first()
     if admin == current_user:
         try:
-            start_date_confirm = buffer
+            start_date_confirm = request.form['start_date']
             update_event_admin(start_date_confirm)
 
-            buffer.clear()
             flash('Zatwierdzono Wydarzenia', 'info')
             return redirect(url_for('admin'))
         
@@ -484,8 +493,7 @@ def confirm_admin3():
 @login_required
 def delete():
     try:
-        delete_txt = ["Tak", "Nie"]
-        return render_template('del_warning.html', list1=delete_txt)
+        return render_template('del_warning.html')
     
     except Exception as e:
         print("Error at ", e)
@@ -502,7 +510,7 @@ def delete_confirmed():
             flash('Nie można usunąć admina', 'danger')
             return redirect(url_for('account'))
         else:
-            if wyb == "Tak":
+            if wyb == "TAK":
                 user = current_user
                 post = Post.query.filter_by(post_id=current_user.id).first()
                 if post:
@@ -522,8 +530,9 @@ def delete_confirmed():
                 flash('Pomyślnie usunięto konto', 'info')
                 return redirect(url_for('login'))
             else:
-                flash('Konto nie zostało usunięte', 'info')
+                flash('Konto nie zostało usunięte', 'danger')
                 return redirect(url_for('home'))
+
     except Exception as e:
         print("Error at ", e)
         log(e, request.path, current_user.id)
@@ -551,7 +560,7 @@ def rejestr():
 
 @app.route("/rejestr2", methods=['GET', 'POST'])
 @login_required
-def rejestr2(): #TODO fix gdy bezpośrednio przechodzisz to rejestr2 błąd
+def rejestr2(): #TODO fix gdy bezpośrednio przechodzisz to rejestr2 błąd poprostu refresh naprawia
     admin = User.query.filter_by(role='1').first()
     if admin == current_user:
         try:
@@ -605,6 +614,8 @@ def rejestr2(): #TODO fix gdy bezpośrednio przechodzisz to rejestr2 błąd
             notes = post2.notes
             visit_nr = post2.visit_nr + 1
 
+            target_user(current_user.id)
+
             return render_template('rejestr2.html', user1=user1, form=form, choroba=choroba, objawy=objawy, visit_nr=visit_nr, notes=notes)
         
         except Exception as e:
@@ -622,7 +633,8 @@ def rejestr2_more():
     if admin == current_user:
         try:
             post1 = []
-            id1 = str(idbuffer1[0])
+            id1 = str(target_user_check())
+            print(target_user_check())
             user1 = User.query.filter_by(id=id1).first()
             posts = Post.query.filter_by(post_user_id=id1).all()
             post_len = len(posts)
@@ -631,6 +643,48 @@ def rejestr2_more():
             
             post1.reverse()
             return render_template('rejestr2_more.html', post=post1, post_len=post_len)
+
+        except Exception as e:
+            print("Error at ", e)
+            log(e, request.path, current_user.id)
+            return render_template('error_page.html', error = type(e))
+    else:
+        flash('Nie masz uprawnien', 'danger')
+        return redirect(url_for('home'))
+
+
+@app.route("/rejestr3", methods=['GET', 'POST'])
+@login_required
+def rejestr3():
+    admin = User.query.filter_by(role='1').first()
+    if admin == current_user:
+        try:
+            form = MngForm()
+            print(target_user_check())
+            author = User.query.filter_by(id=str(target_user_check())).first()
+            post = Post.query.filter_by(post_id=str(target_user_check())).first()
+            if post:
+                post_choroba = post.choroba
+                post_objawa = post.objawa
+                post_notes = post.notes
+                post_visit_nr = post.visit_nr
+
+                visit_nr1 = post_visit_nr + 1
+            else:
+                visit_nr1 = 0
+            
+            if form.picture.data: #TODO fix visit_nr
+                picture_file = save_picture(form.picture.data)
+                author.image_file = picture_file
+                photo1 = Photo(author=author, photo=author.image_file, created=now_date)
+                db.session.add(photo1)
+            
+            post = Post(choroba=form.choroba.data, objawa=form.objawa.data, notes=form.notes.data, created=now_date, visit_nr=visit_nr1, author=author)
+            db.session.add(post)
+            db.session.commit()
+
+            flash('Poprawnie zaaktualizowano dane pacjęta', 'info')
+            return redirect(url_for('admin'))
 
         except Exception as e:
             print("Error at ", e)
@@ -671,49 +725,6 @@ def photos(): #TODO fix
             print("Error at ", e)
             log(e, request.path, current_user.id)
             return render_template('error_page.html', error = type(e))
-    else:
-        flash('Nie masz uprawnien', 'danger')
-        return redirect(url_for('home'))
-
-@app.route("/rejestr3", methods=['GET', 'POST'])
-@login_required
-def rejestr3():
-    admin = User.query.filter_by(role='1').first()
-    if admin == current_user:
-        if "0" == "0":
-        #try:
-            form = MngForm()
-            
-            author = User.query.filter_by(id=str(idbuffer1[0])).first()
-            post = Post.query.filter_by(post_id=str(idbuffer1[0])).first()
-            if post:
-                post_choroba = post.choroba
-                post_objawa = post.objawa
-                post_notes = post.notes
-                post_visit_nr = post.visit_nr
-
-                visit_nr1 = post_visit_nr + 1
-            else:
-                visit_nr1 = 0
-            
-            if form.picture.data: #TODO fix visit_nr
-                picture_file = save_picture(form.picture.data)
-                author.image_file = picture_file
-                photo1 = Photo(author=author, photo=author.image_file, created=now_date)
-                db.session.add(photo1)
-            
-            post = Post(choroba=form.choroba.data, objawa=form.objawa.data, notes=form.notes.data, created=now_date, visit_nr=visit_nr1, author=author)
-            db.session.add(post)
-            db.session.commit()
-
-            flash('Poprawnie zaaktualizowano dane pacjęta', 'info')
-            return redirect(url_for('admin'))
-
-        #except Exception as e:
-            #print("Error at ", e)
-            #log(e, request.path, current_user.id)
-            #return render_template('error_page.html', error = type(e))
-            #return redirect(url_for('admin'))
     else:
         flash('Nie masz uprawnien', 'danger')
         return redirect(url_for('home'))

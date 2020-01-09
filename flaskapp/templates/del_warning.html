@@ -1,20 +1,19 @@
 {% extends "layout.html" %}
 {% block content %}
-<datalist id="wyb">
-    {% for x in range(2) %}
-    <option value="{{list1.pop(0)}}">
-        {% endfor %}
-</datalist>
 
-<h1 class="major"><center>Czy na pewno chcesz usunac konto ?</center></h1>
+<h1 class="major"><center>Czy na pewno chcesz usunać konto ?</center></h1>
 <section id="main" class="wrapper">
     <div style="text-align: center;">
         <form action="http://localhost:5000/del_confirmed" method="POST">
             <fieldset class="form-group">
-                <input list="wyb" name="wyb1" autocomplete="off" style="background-color:#312450; color:aliceblue;"/>
-                <br />
+                <div align="center">
+                <select name="wyb1">
+                    <option value="NIE">NIE</option>
+                    <option value="TAK">TAK</option>
+                </select>
+                </div>
             </fieldset>
-            <input type="submit" value="Zatwierdz" />
+            <input type="submit" value="Zatwierdź" />
         </form>
     </div>
     <br/>

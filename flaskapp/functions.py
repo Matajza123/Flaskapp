@@ -83,7 +83,14 @@ def check_ban_list():
     except Exception as e:
         print("Error at ", e)
         log(e, request.path, current_user.id) 
+        
+test_list = [] #TODO delete
+def target_user(id0):
+    test_list.append(id0)
 
+def target_user_check():
+    return test_list[0]
+    
 
 def save_picture(form_picture):
     try:
