@@ -5,7 +5,7 @@ Mainly based on google calendar
 
 To run development server
 ```
-python run.py
+py run.py
 ```
 
 To create database:
