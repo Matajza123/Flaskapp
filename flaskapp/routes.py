@@ -3,7 +3,7 @@ from datetime import time
 import time
 import os
 from PIL import Image
-from flaskapp import app, db, bcrypt, cache
+from flaskapp import app, db, bcrypt, cache, dropzone
 from flask import render_template, url_for, flash, redirect, request, Response
 from flask_sqlalchemy import BaseQuery
 from flask_login import login_user, current_user, logout_user, login_required
@@ -11,7 +11,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 from flaskapp.forms import RegistrationForm, LoginForm, MngForm
 from flaskapp.models import User, Post, Info, Photo, Ban_list
 from flaskapp.callendar import events, update_event, update_event_admin, get_desc, get_id, add_events, admin_free_events, admin_events, multi_add_events, awaiting_events, last_events
-from flaskapp.functions import log, bugs, ban_user, check_ban_list, save_picture, target_user, target_user_check
+from flaskapp.functions import log, bugs, ban_user, check_ban_list, save_picture
 from flaskapp.error_handlers import bad_request, forbidden, page_not_found, method_not_allowed, server_error
 
 now = datetime.datetime.now()
@@ -58,7 +58,7 @@ def lokalizacja():
 @app.route('/')
 @app.route("/rezerwacja", methods=['GET', 'POST'])
 @cache.cached()
-#@login_required
+@login_required
 def rezerwacja():
     try:
         day12 = False
@@ -74,7 +74,7 @@ def rezerwacja():
         
 @app.route("/rezerwacja2", methods=['GET', 'POST'])
 @cache.cached()
-#@login_required
+@login_required
 def rezerwacja2():
     try:
         day12 = 1
@@ -192,6 +192,14 @@ def confirm1():
             flash('Podano nieprawidłowe znaki', 'danger')
             return redirect(url_for('rezerwacja'))
 
+        date = get_id(start_date_confirm)
+        if not date == True:
+            print("Not False")
+            flash('Termin jest już zajęty', 'danger')
+            return redirect(url_for('rezerwacja'))
+        else:
+            print("Not True")
+
         len_ban_list = len(Ban_list.query.order_by(Ban_list.ban_id).all()) + 1
         for x in range(1, len_ban_list):
             ban_list = Ban_list.query.filter_by(ban_id=x).first()
@@ -225,14 +233,8 @@ def confirm1():
         letter1_years = letter1.strftime("%Y")
         
         if int(now_date_years) <= int(letter1_years):#TODO fix blisko nowego roku błąd ponieważ niepoprawna data 
-            print(int(now_date_years), int(letter1_years))
-
             if int(now_date_months) <= int(letter1_months):
-                print(int(now_date_months), int(letter1_months))
-
                 if int(now_date_days) <= int(letter1_days):
-                    print(int(now_date_days), int(letter1_days))
-
                     update_event(start_date_confirm)
                 else:
                     flash('Wybierz poprawną datę', 'danger')
@@ -340,11 +342,10 @@ def logout():
 
 #admin routes
 @app.route("/admin", methods=['GET', 'POST'])
-#@login_required
+@login_required
 def admin():
     admin = User.query.filter_by(role='1').first()
-    if "0" == "0":
-    #if admin == current_user:
+    if admin == current_user:
         try:
             summary_admin, start_admin, list_admin, desc_admin = admin_events() # zatwierdzone 
             list_len_admin = list_admin
@@ -570,14 +571,6 @@ def rejestr2(): #TODO fix gdy bezpośrednio przechodzisz to rejestr2 błąd popr
             if check_user == None:
                 flash('Użytkiwnik nie istnieje, podaj poprawne ID', 'danger')
                 return redirect(url_for('rejestr'))
-
-            if len(idbuffer1) == 0:
-                for x in range(10):
-                    idbuffer1.append(id1)
-
-            if not idbuffer1[0] == id1:
-                idbuffer1.clear()
-                idbuffer1.append(id1)
                 
             if len(id1) == 0:
                 flash('Podaj ID', 'danger')
@@ -590,14 +583,8 @@ def rejestr2(): #TODO fix gdy bezpośrednio przechodzisz to rejestr2 błąd popr
                 db.session.add(post)
                 db.session.commit()
 
-            check1 = Photo.query.filter_by(photo_user_id=id1).first()
-            if check1 == None:
-                user1 = User.query.filter_by(id=id1).first()
-                photo = Photo(author=user1)
-                db.session.add(photo)
-                db.session.commit()
-
             form = MngForm()
+            form.id0 = id1
             user1 = User.query.filter_by(id=id1).first()
             info = Info.query.filter_by(info_id=id1).first()
 
@@ -614,9 +601,7 @@ def rejestr2(): #TODO fix gdy bezpośrednio przechodzisz to rejestr2 błąd popr
             notes = post2.notes
             visit_nr = post2.visit_nr + 1
 
-            target_user(current_user.id)
-
-            return render_template('rejestr2.html', user1=user1, form=form, choroba=choroba, objawy=objawy, visit_nr=visit_nr, notes=notes)
+            return render_template('rejestr2.html',id0 = id1, user1=user1, form=form, choroba=choroba, objawy=objawy, visit_nr=visit_nr, notes=notes)
         
         except Exception as e:
             print("Error at ", e)
@@ -633,13 +618,12 @@ def rejestr2_more():
     if admin == current_user:
         try:
             post1 = []
-            id1 = str(target_user_check())
-            print(target_user_check())
             user1 = User.query.filter_by(id=id1).first()
             posts = Post.query.filter_by(post_user_id=id1).all()
             post_len = len(posts)
             for post in posts:
                 post1.append(post)
+            id0 = id1
             
             post1.reverse()
             return render_template('rejestr2_more.html', post=post1, post_len=post_len)
@@ -653,16 +637,16 @@ def rejestr2_more():
         return redirect(url_for('home'))
 
 
-@app.route("/rejestr3", methods=['GET', 'POST'])
+@app.route("/rejestr3", methods=['POST'])
 @login_required
 def rejestr3():
     admin = User.query.filter_by(role='1').first()
     if admin == current_user:
         try:
             form = MngForm()
-            print(target_user_check())
-            author = User.query.filter_by(id=str(target_user_check())).first()
-            post = Post.query.filter_by(post_id=str(target_user_check())).first()
+            ID = request.form['id0']
+            author = User.query.filter_by(id=str(ID)).first()
+            post = Post.query.filter_by(post_id=str(ID)).first()
             if post:
                 post_choroba = post.choroba
                 post_objawa = post.objawa
@@ -673,12 +657,12 @@ def rejestr3():
             else:
                 visit_nr1 = 0
             
-            if form.picture.data: #TODO fix visit_nr
+            if form.picture.data:
                 picture_file = save_picture(form.picture.data)
                 author.image_file = picture_file
                 photo1 = Photo(author=author, photo=author.image_file, created=now_date)
                 db.session.add(photo1)
-            
+
             post = Post(choroba=form.choroba.data, objawa=form.objawa.data, notes=form.notes.data, created=now_date, visit_nr=visit_nr1, author=author)
             db.session.add(post)
             db.session.commit()
@@ -694,33 +678,31 @@ def rejestr3():
         flash('Nie masz uprawnien', 'danger')
         return redirect(url_for('home'))
 
-@app.route("/photos", methods=['GET', 'POST'])
+@app.route("/photos/<int:id0>", methods=['GET', 'POST']) #TODO change photo scale
 @login_required
-def photos(): #TODO fix
+def photos(id0):
     admin = User.query.filter_by(role='1').first()
     if admin == current_user:
         try:
-            author = User.query.filter_by(id=str(idbuffer1[0])).first()
-            photo_name = Photo.query.filter_by(photo_user_id=author.id).all()
-            photo_len = len(photo_name)
+            ID = id0
+            photo0 = []
+            dates = []
+            photos1 = []
 
-            print(len(photo_name))
-            print(photo_name)
-            if len(photo_name) == 1:
-                photo_len = 0
+            photos0 = Photo.query.filter_by(photo_user_id=ID).all()
+            photo_len = len(photos0)
 
-            post1 = []
-            test = []
-            for x in range(photo_len):
-                post1.append(photo_name.pop(0))
-            
-            post1.reverse()
-            for x in range(photo_len):
-                post2 = post1.pop(0)
-                photo1 = url_for('static', filename='profile_pics/' + str(post2.photo))
-                test.append(photo1)
-            return render_template('photos.html', photo=test, photo_len=photo_len)
-        
+            for x in range(len(photos0)):
+                photo11 = photos0[x]
+                link = url_for('static', filename='profile_pics/' + str(photo11.photo))
+                
+                photos1.append(link)
+                dates.append(str(photo11.created))
+
+            photos1.reverse()
+            dates.reverse()
+            return render_template('photos.html', photo=photos1, date=dates, photo_len=photo_len)
+
         except Exception as e:
             print("Error at ", e)
             log(e, request.path, current_user.id)
@@ -829,3 +811,7 @@ def ban_confirm():
             log(e, request.path, current_user.id)
             return render_template('error_page.html', error = type(e))
 
+@app.route("/test", methods=['GET', 'POST'])
+@login_required
+def test():
+     return render_template('test.html')

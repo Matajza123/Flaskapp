@@ -50,8 +50,8 @@ class Info(db.Model):
 class Photo(db.Model):
     photo_id = db.Column(db.Integer, nullable=False, primary_key=True)
     photo_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    created = db.Column(db.Text, default="#404")
-    photo = db.Column(db.String(20), default="#404")
+    created = db.Column(db.Text, default="")
+    photo = db.Column(db.String(20), default="")
 
     def __repr__(self):
         return f"Photo('{self.photo}')"

@@ -317,9 +317,11 @@ def get_id(start_date):
             if start_date == str1:
                 id0.append(desc)
                 id0 = ''.join(id0)
-                
 
-    return id0
+    if len(id0) == 0:
+        return True
+    else:
+        return id0
 
 def add_events():
     #Dodaje jedno wydarzenie teraz + 15 min
@@ -435,7 +437,10 @@ def multi_add_events(start_date, start_time1, end_time1, len1):
         end_time3 = end_time2.strftime("%H")
         if int(end_time3) == int(end_time1):
             break
-
+        #TODO check in not added second time
+        #print(str(start_date.isoformat() + 'Z'))
+        #date12 = get_id(start_date_confirm) 
+        #if date12 == True:
         event = {'summary': 'Wolne', 'start': {'dateTime': str(start_date.isoformat() + 'Z')}, 'end': {'dateTime': str(end_time2.isoformat() + 'Z')}}
         event = service.events().insert(calendarId='primary', body=event).execute()
 

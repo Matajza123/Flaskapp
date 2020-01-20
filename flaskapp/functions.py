@@ -1,6 +1,8 @@
 import datetime
 from datetime import time
 import secrets
+import os
+from PIL import Image
 from flask import request
 from flaskapp import app, db
 from flask_sqlalchemy import BaseQuery
@@ -84,14 +86,6 @@ def check_ban_list():
         print("Error at ", e)
         log(e, request.path, current_user.id) 
         
-test_list = [] #TODO delete
-def target_user(id0):
-    test_list.append(id0)
-
-def target_user_check():
-    return test_list[0]
-    
-
 def save_picture(form_picture):
     try:
         random_hex = secrets.token_hex(8)

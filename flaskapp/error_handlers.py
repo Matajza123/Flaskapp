@@ -15,6 +15,7 @@ def forbidden(e):
 
 @app.errorhandler(404)
 def page_not_found(e):
+    log(e, request.path, current_user.id)
     return render_template('error.html', error = e)   
 
 @app.errorhandler(405)

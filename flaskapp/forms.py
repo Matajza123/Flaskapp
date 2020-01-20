@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, HiddenField
 from flaskapp.models import User, Post
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NoneOf
 
@@ -33,4 +33,5 @@ class MngForm(FlaskForm):
     objawa = StringField('Objawy')
     notes = StringField('Notatki')
     picture = FileField('Picture')
+    id0 = HiddenField("Id")
     submit = SubmitField('Potwierdz')
