@@ -3,7 +3,7 @@ from datetime import time
 import time
 import os
 from PIL import Image
-from flaskapp import app, db, bcrypt, cache, dropzone
+from flaskapp import app, db, bcrypt, cache
 from flask import render_template, url_for, flash, redirect, request, Response
 from flask_sqlalchemy import BaseQuery
 from flask_login import login_user, current_user, logout_user, login_required
