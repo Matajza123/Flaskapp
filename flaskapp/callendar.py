@@ -8,6 +8,7 @@ import os.path
 #flask
 from flask_login import current_user
 from flask import request, redirect, url_for
+from flaskapp.functions import log
 
 #google
 from googleapiclient.discovery import build
@@ -323,6 +324,20 @@ def get_id(start_date):
     else:
         return id0
 
+def is_free(start_date, end_date): 
+    #Sprawdza czy termin jest wolny bazując na godzinie rozpoczęcia i zakończenia
+    try:
+        events_result = service.events().list(calendarId='primary', timeMin=start_date, timeMax=end_date, singleEvents=True, orderBy='startTime').execute()
+        events = events_result.get('items', [])
+        if len(events) == 0:
+            return True
+        else:
+            return False
+
+    except Exception as e:
+        log(e, "is_free() google calendar failed", 0)
+        return False
+
 def add_events():
     #Dodaje jedno wydarzenie teraz + 15 min
     #nie jest wykorzystane na stronie 
@@ -330,7 +345,7 @@ def add_events():
     now = datetime.datetime.utcnow()
     now1 = now + datetime.timedelta(minutes=15)
     # dodawanie wydarzenia do google calendar
-    event = {'summary': 'Masaż', 'description': str(current_user), 'start': {'dateTime': str(now.isoformat() + 'Z')}, 'end': {'dateTime': str(now1.isoformat() + 'Z')}}
+    event = {'summary': 'Masaż', 'description': str(current_user.id), 'start': {'dateTime': str(now.isoformat() + 'Z')}, 'end': {'dateTime': str(now1.isoformat() + 'Z')}}
     event = service.events().insert(calendarId='primary', body=event).execute()
 
 def update_event(start_date_confirm):
@@ -413,39 +428,44 @@ def multi_add_events(start_date, start_time1, end_time1, len1):
     #end_time1 godzina zakączenia wydarzenia
     #len1 długość wydarzenia
 
+    try:
     #obliczenie ilosci loop
-    now12 = datetime.datetime.now()
-    loop = int(end_time1) - int(start_time1)
-    loop *= 60
-    loop =  int(loop) / int(len1)
+        now12 = datetime.datetime.now()
+        loop = int(end_time1) - int(start_time1)
+        loop *= 60
+        loop =  int(loop) / int(len1)
 
-    #roznica godzin
-    new_target_hour = int(start_time1) - int(now_hour)
+        #roznica godzin
+        new_target_hour = int(start_time1) - int(now_hour)
 
-    format = "%Y-%m-%d"
-    start_date = now.strptime(start_date, format)
-    if time == True:
-        start_date = start_date + datetime.timedelta(hours=1)
-    start_date = start_date + datetime.timedelta(hours=int(start_time1))
-    start_date = start_date - datetime.timedelta(hours=2)
+        format = "%Y-%m-%d"
+        start_date = now.strptime(start_date, format)
+        if time == True:
+            start_date = start_date + datetime.timedelta(hours=1)
+        start_date = start_date + datetime.timedelta(hours=int(start_time1))
+        start_date = start_date - datetime.timedelta(hours=2)
 
-    end_time2 = start_date + datetime.timedelta(minutes=int(len1))
-    end_time3 = end_time2.strftime("%H")
-
-    #dodawanie wydarzen
-    for x in range(int(loop)):
+        end_time2 = start_date + datetime.timedelta(minutes=int(len1))
         end_time3 = end_time2.strftime("%H")
-        if int(end_time3) == int(end_time1):
-            break
-        #TODO check in not added second time
-        #print(str(start_date.isoformat() + 'Z'))
-        #date12 = get_id(start_date_confirm) 
-        #if date12 == True:
-        event = {'summary': 'Wolne', 'start': {'dateTime': str(start_date.isoformat() + 'Z')}, 'end': {'dateTime': str(end_time2.isoformat() + 'Z')}}
-        event = service.events().insert(calendarId='primary', body=event).execute()
 
-        start_date += datetime.timedelta(minutes=int(len1))
-        end_time2 += datetime.timedelta(minutes=int(len1))
+        #dodawanie wydarzen
+        for x in range(int(loop)):
+            end_time3 = end_time2.strftime("%H")
+            if int(end_time3) == int(end_time1):
+                break
+            
+            date12 = is_free(str(start_date.isoformat() + 'Z'), str(end_time2.isoformat() + 'Z')) 
+            if date12 == True:
+                event = {'summary': 'Wolne', 'start': {'dateTime': str(start_date.isoformat() + 'Z')}, 'end': {'dateTime': str(end_time2.isoformat() + 'Z')}}
+                event = service.events().insert(calendarId='primary', body=event).execute()
+
+            start_date += datetime.timedelta(minutes=int(len1))
+            end_time2 += datetime.timedelta(minutes=int(len1))
+    except Exception as e:
+        log(e, "multi_add_events() google calendar failed", 0)
+        return False
+
+    return True
 
 def last_events(date):
 

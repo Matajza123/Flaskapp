@@ -63,3 +63,11 @@ class Ban_list(db.Model):
 
     def __repr__(self):
         return f"Ban_list('{self.ban_id }', '{self.user_id}','{self.time}')"
+
+class Notify(db.Model):
+    notify_id = db.Column(db.Integer, nullable=False, primary_key=True)
+    user_id = db.Column(db.Integer)
+    event = db.Column(db.Text)
+
+    def __repr__(self):
+        return f"Notify('{self.notify_id }', '{self.user_id}','{self.event}')"

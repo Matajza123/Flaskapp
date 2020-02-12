@@ -415,9 +415,12 @@ def add2():#TODO fix gdy bezpośrednio przechodzisz to add2 błąd odświeżenie
                 flash('Nie podałeś długości wydarzenia', 'danger')
                 return redirect(url_for('add'))
 
-            multi_add_events(start_date, start_time1, end_time1, len1)
-            flash('Poprawnie dodano wydarzenia', 'info')
-            return redirect(url_for('admin'))
+            a = multi_add_events(start_date, start_time1, end_time1, len1)
+            if a == False:
+                flash('Wystąpił błąd', 'danger')
+            else:
+                flash('Poprawnie dodano wydarzenia', 'info')
+                return redirect(url_for('admin'))
         
         except Exception as e:
             print("Error at ", e)

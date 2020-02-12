@@ -21,7 +21,6 @@ login_manager.login_message_category = 'info'
 
 from flaskapp import routes
 #TODO
-    #rejestr2 to rejestr not found
     #notifications
 
     #RODO
